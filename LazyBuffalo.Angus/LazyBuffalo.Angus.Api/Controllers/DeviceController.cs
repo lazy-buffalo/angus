@@ -76,7 +76,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            return new JsonResult(rootobject);
+            return Ok();
         }
     }
 }
