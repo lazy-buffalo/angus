@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  lazybuffalo.angus:
+    image: ${DOCKER_REGISTRY}lazybuffaloangus
+    build:
+      context: .
+      dockerfile: LazyBuffalo.Angus\Dockerfile
