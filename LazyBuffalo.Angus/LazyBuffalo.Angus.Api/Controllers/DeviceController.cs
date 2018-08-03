@@ -43,11 +43,11 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 DateTime = rootobject.Metadata.Time,
                 LatitudeDeg = Convert.ToInt32(playload[0]),
                 LatitudeMinutes = Convert.ToInt32(playload[1]),
-                LatitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[2]) + "." + Convert.ToInt32(playload[3])),
+                LatitudeSecondes = Convert.ToDouble(Convert.ToInt32(playload[2]) + "." + Convert.ToInt32(playload[3])),
                 LatitudeDirection = Convert.ToChar(playload[4]),
                 LongitudeDeg = Convert.ToInt32(playload[5]),
                 LongitudeMinutes = Convert.ToInt32(playload[6]),
-                LongitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[7]) + "." + Convert.ToInt32(playload[8])),
+                LongitudeSecondes = Convert.ToDouble(Convert.ToInt32(playload[7]) + "." + Convert.ToInt32(playload[8])),
                 LongitudeDirection = Convert.ToChar(playload[9])
             };
 
