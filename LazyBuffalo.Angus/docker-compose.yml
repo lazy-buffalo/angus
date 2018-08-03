@@ -5,4 +5,4 @@ services:
     image: ${DOCKER_REGISTRY}lazybuffaloangus
     build:
       context: .
-      dockerfile: LazyBuffalo.Angus\Dockerfile
+      dockerfile: LazyBuffalo.Angus.Api/Dockerfile

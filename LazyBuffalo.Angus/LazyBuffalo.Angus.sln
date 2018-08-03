@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LazyBuffalo.Angus", "LazyBuffalo.Angus\LazyBuffalo.Angus.csproj", "{51A3D242-EEB4-457D-8813-720196BFE7A1}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5B8E5F36-D209-49C6-BF9D-EE26D7C4E1E2}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1F1E2CAB-FEB3-45E5-9C41-09A8DDAB970B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyBuffalo.Angus.Api", "LazyBuffalo.Angus.Api\LazyBuffalo.Angus.Api.csproj", "{96DF2870-D8F8-43BA-A214-CA5A1C7A912D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{51A3D242-EEB4-457D-8813-720196BFE7A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{51A3D242-EEB4-457D-8813-720196BFE7A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{51A3D242-EEB4-457D-8813-720196BFE7A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{51A3D242-EEB4-457D-8813-720196BFE7A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F1E2CAB-FEB3-45E5-9C41-09A8DDAB970B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F1E2CAB-FEB3-45E5-9C41-09A8DDAB970B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F1E2CAB-FEB3-45E5-9C41-09A8DDAB970B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F1E2CAB-FEB3-45E5-9C41-09A8DDAB970B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B8E5F36-D209-49C6-BF9D-EE26D7C4E1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B8E5F36-D209-49C6-BF9D-EE26D7C4E1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B8E5F36-D209-49C6-BF9D-EE26D7C4E1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B8E5F36-D209-49C6-BF9D-EE26D7C4E1E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96DF2870-D8F8-43BA-A214-CA5A1C7A912D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96DF2870-D8F8-43BA-A214-CA5A1C7A912D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96DF2870-D8F8-43BA-A214-CA5A1C7A912D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96DF2870-D8F8-43BA-A214-CA5A1C7A912D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace LazyBuffalo.Angus.Dtos
+﻿namespace LazyBuffalo.Angus.Api.Dtos
 {
     public class PayloadFields
     {
