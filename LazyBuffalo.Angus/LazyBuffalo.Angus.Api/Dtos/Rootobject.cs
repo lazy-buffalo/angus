@@ -30,7 +30,7 @@ namespace LazyBuffalo.Angus.Api.Dtos
         public string PayloadRaw { get; set; }
 
         [JsonProperty("payload_fields")]
-        public PayloadFields PayloadFields { get; set; }
+        public object PayloadFields { get; set; }
 
         [JsonProperty("metadata")]
         public Metadata Metadata { get; set; }
