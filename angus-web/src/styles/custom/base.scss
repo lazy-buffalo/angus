@@ -1,0 +1,20 @@
+
+.topnavbar .navbar-header .brand-logo {
+  display: flex;
+}
+
+.topnavbar .navbar-header .brand-logo img {
+  max-height: 35px;
+  flex: 1;
+}
+
+.topnavbar .navbar-header .brand-logo-collapsed img {
+  max-height: 35px;
+}
+
+.topnavbar .navbar-header .brand-logo span {
+  flex: 1;
+  font-size: 23px;
+  text-transform: uppercase;
+  color: white;
+}

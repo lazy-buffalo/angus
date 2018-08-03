@@ -1,0 +1,7 @@
+version: '3'
+services: 
+    web:
+        image: lazybuffaloangus/lazybuffaloangus
+        ports:
+          - "55379:80"
+          - "44384:443"

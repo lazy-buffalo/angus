@@ -43,11 +43,11 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 DateTime = rootobject.Metadata.Time,
                 LatitudeDeg = Convert.ToInt32(playload[0]),
                 LatitudeMinutes = Convert.ToInt32(playload[1]),
-                LatitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[2]) + Convert.ToInt32(playload[3]).ToString()),
+                LatitudeSecondes = Convert.ToDouble(Convert.ToInt32(playload[2]) + "." + Convert.ToInt32(playload[3])),
                 LatitudeDirection = Convert.ToChar(playload[4]),
                 LongitudeDeg = Convert.ToInt32(playload[5]),
                 LongitudeMinutes = Convert.ToInt32(playload[6]),
-                LongitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[7]) + Convert.ToInt32(playload[8]).ToString()),
+                LongitudeSecondes = Convert.ToDouble(Convert.ToInt32(playload[7]) + "." + Convert.ToInt32(playload[8])),
                 LongitudeDirection = Convert.ToChar(playload[9])
             };
 
@@ -76,7 +76,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            return new JsonResult(rootobject);
+            return Ok();
         }
     }
 }

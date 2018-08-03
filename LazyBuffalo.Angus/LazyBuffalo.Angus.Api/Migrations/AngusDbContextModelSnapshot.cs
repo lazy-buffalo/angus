@@ -44,25 +44,25 @@ namespace LazyBuffalo.Angus.Api.Migrations
 
                     b.Property<DateTime>("DateTime");
 
-                    b.Property<int>("LatitudeDeg");
+                    b.Property<double>("LatitudeDeg");
 
                     b.Property<string>("LatitudeDirection")
                         .IsRequired()
                         .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 1)));
 
-                    b.Property<int>("LatitudeMinutes");
+                    b.Property<double>("LatitudeMinutes");
 
-                    b.Property<int>("LatitudeSecondes");
+                    b.Property<double>("LatitudeSecondes");
 
-                    b.Property<int>("LongitudeDeg");
+                    b.Property<double>("LongitudeDeg");
 
                     b.Property<string>("LongitudeDirection")
                         .IsRequired()
                         .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 1)));
 
-                    b.Property<int>("LongitudeMinutes");
+                    b.Property<double>("LongitudeMinutes");
 
-                    b.Property<int>("LongitudeSecondes");
+                    b.Property<double>("LongitudeSecondes");
 
                     b.HasKey("Id");
 

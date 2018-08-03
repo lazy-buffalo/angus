@@ -1,0 +1,26 @@
+{
+  "dashboard": {
+    "WELCOME": "Welcome to Angus !"
+  },
+  "topbar": {
+    "search": {
+      "PLACEHOLDER": "Type and hit enter.."
+    }
+  },
+  "sidebar": {
+    "WELCOME": "Welcome",
+    "heading": {
+      "HEADER": "Main Navigation"
+    },
+    "nav": {
+      "SINGLEVIEW": "Carte",
+      "menu": {
+        "MENU": "Menu",
+        "SUBMENU": "Sub Menu"
+      }
+    }
+  },
+  "grazing": {
+    "TITLE": "Manage domain's grazing area"
+  }
+}
