@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace LazyBuffalo.Angus.Api
 {
@@ -20,8 +21,12 @@ namespace LazyBuffalo.Angus.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AngusDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            var connectionString = Environment.GetEnvironmentVariable("ANGUS_API_CONNECTION_STRING");
+#if DEBUG
+            connectionString = Configuration.GetConnectionString("DefaultConnection");
+#endif
+            services.AddDbContext<AngusDbContext>(options => options.UseSqlServer(connectionString));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
