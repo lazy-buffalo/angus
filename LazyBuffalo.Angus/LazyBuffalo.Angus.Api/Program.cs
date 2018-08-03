@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore;
+﻿using LazyBuffalo.Angus.Api.Data;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LazyBuffalo.Angus.Api
 {
@@ -7,7 +10,17 @@ namespace LazyBuffalo.Angus.Api
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var host = CreateWebHostBuilder(args).Build();
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                var context = services.GetRequiredService<AngusDbContext>();
+                context.Database.Migrate();
+            }
+
+            host.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
