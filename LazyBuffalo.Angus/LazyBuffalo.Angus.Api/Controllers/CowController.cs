@@ -2,7 +2,6 @@
 using LazyBuffalo.Angus.Api.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,12 +36,12 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 CowId = cowLocation.Id,
                 CowName = cowLocation.Name,
                 LocationDateTime = cowLocation.GpsEntry.DateTime,
-                Latitude = Convert.ToDouble(cowLocation.GpsEntry.LatitudeDeg + "." +
-                                            cowLocation.GpsEntry.LatitudeMinutes +
-                                            cowLocation.GpsEntry.LatitudeSecondes),
-                Longitude = Convert.ToDouble(cowLocation.GpsEntry.LongitudeDeg + "." +
-                                             cowLocation.GpsEntry.LongitudeMinutes +
-                                             cowLocation.GpsEntry.LongitudeSecondes)
+                Latitude = cowLocation.GpsEntry.LatitudeDeg
+                           + (double)cowLocation.GpsEntry.LatitudeMinutes / 60
+                           + (double)cowLocation.GpsEntry.LatitudeSecondes / 3600,
+                Longitude = cowLocation.GpsEntry.LongitudeDeg
+                           + (double)cowLocation.GpsEntry.LongitudeMinutes / 60
+                           + (double)cowLocation.GpsEntry.LongitudeSecondes / 3600
             });
 
             return new JsonResult(result);

@@ -7,14 +7,14 @@ namespace LazyBuffalo.Angus.Api.Models
         public long Id { get; set; }
         public DateTime DateTime { get; set; }
 
-        public int LatitudeDeg { get; set; }
-        public int LatitudeMinutes { get; set; }
-        public int LatitudeSecondes { get; set; }
+        public double LatitudeDeg { get; set; }
+        public double LatitudeMinutes { get; set; }
+        public double LatitudeSecondes { get; set; }
         public char LatitudeDirection { get; set; }
 
-        public int LongitudeDeg { get; set; }
-        public int LongitudeMinutes { get; set; }
-        public int LongitudeSecondes { get; set; }
+        public double LongitudeDeg { get; set; }
+        public double LongitudeMinutes { get; set; }
+        public double LongitudeSecondes { get; set; }
         public char LongitudeDirection { get; set; }
 
         public long CowId { get; set; }
