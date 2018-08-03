@@ -37,7 +37,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 CowId = cowLocation.Id,
                 CowName = cowLocation.Name,
                 LocationDateTime = cowLocation.GpsEntry.DateTime,
-                Latidude = Convert.ToDouble(cowLocation.GpsEntry.LatitudeDeg + "." +
+                Latitude = Convert.ToDouble(cowLocation.GpsEntry.LatitudeDeg + "." +
                                             cowLocation.GpsEntry.LatitudeMinutes +
                                             cowLocation.GpsEntry.LatitudeSecondes),
                 Longitude = Convert.ToDouble(cowLocation.GpsEntry.LongitudeDeg + "." +
