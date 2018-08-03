@@ -28,6 +28,11 @@ namespace LazyBuffalo.Angus.Api.Data
                 .WithOne(x => x.Cow)
                 .HasForeignKey(x => x.CowId);
 
+            modelBuilder.Entity<Cow>()
+                .HasMany(x => x.PositionEntries)
+                .WithOne(x => x.Cow)
+                .HasForeignKey(x => x.CowId);
+
 
             base.OnModelCreating(modelBuilder);
         }

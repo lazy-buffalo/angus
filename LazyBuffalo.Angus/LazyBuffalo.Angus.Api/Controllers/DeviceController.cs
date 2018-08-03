@@ -57,10 +57,22 @@ namespace LazyBuffalo.Angus.Api.Controllers
             {
                 Cow = cow,
                 DateTime = rootobject.Metadata.Time,
-                Temperature = Convert.ToSingle(Convert.ToInt32(playload[10]) + "." + Convert.ToInt32(playload[11]).ToString())
+                Temperature = Convert.ToSingle(Convert.ToInt32(playload[10]) + "." + Convert.ToInt32(playload[11]))
             };
 
             cow.TemperatureEntries.Add(temperatureEntry);
+
+            var positionEntry = new PositionEntry
+            {
+                Cow = cow,
+                DateTime = rootobject.Metadata.Time,
+                IsUp = Convert.ToBoolean(Convert.ToInt32(playload[12])),
+                X = Convert.ToInt32(playload[13]),
+                Y = Convert.ToInt32(playload[14]),
+                Z = Convert.ToInt32(playload[15])
+            };
+
+            cow.PositionEntries.Add(positionEntry);
 
             await _context.SaveChangesAsync();
 
