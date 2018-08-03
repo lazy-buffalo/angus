@@ -30,10 +30,11 @@ class Header extends Component {
                     <div className="navbar-header">
                         <a className="navbar-brand" href="#/">
                             <div className="brand-logo">
-                                <img className="img-fluid" src="img/logo.png" alt="App Logo" />
+                                <img className="img-fluid" src="img/logo.svg" alt="Angus" />
+                                <span>Angus</span>
                             </div>
                             <div className="brand-logo-collapsed">
-                                <img className="img-fluid" src="img/logo-single.png" alt="App Logo" />
+                                <img className="img-fluid" src="img/logo.svg" alt="Angus" />
                             </div>
                         </a>
                     </div>

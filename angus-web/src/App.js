@@ -21,6 +21,7 @@ import "./Vendor";
 // Application Styles
 import './styles/bootstrap.scss';
 import './styles/app.scss'
+import './styles/custom.scss'
 
 // Disable warning "Synchronous XMLHttpRequest on the main thread is deprecated.."
 $.ajaxPrefilter(o => o.async = true);

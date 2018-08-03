@@ -1,6 +1,6 @@
 {
   "dashboard": {
-    "WELCOME": "Welcome to Angle !"
+    "WELCOME": "Welcome to Angus !"
   },
   "topbar": {
     "search": {
@@ -13,11 +13,14 @@
       "HEADER": "Main Navigation"
     },
     "nav": {
-      "SINGLEVIEW": "Single View",
+      "SINGLEVIEW": "Carte",
       "menu": {
         "MENU": "Menu",
         "SUBMENU": "Sub Menu"
       }
     }
+  },
+  "grazing": {
+    "TITLE": "Manage domain's grazing area"
   }
 }
