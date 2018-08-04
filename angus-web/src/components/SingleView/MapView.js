@@ -65,7 +65,8 @@ class MapView extends React.Component {
           <Col xs={12} className="text-center">
             <Map>
               {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
-                                                                    item={{lat: item.latitude, lng: item.longitude}}/>)}
+                                                                    item={{lat: item.latitude, lng: item.longitude}}
+                                                                    name={item.cowName}/>)}
             </Map>
           </Col>
         </Row>

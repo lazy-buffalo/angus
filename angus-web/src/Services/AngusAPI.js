@@ -8,7 +8,7 @@ const postZone = (zone) => {
 };
 
 const getCows = () => {
-  return fetch(baseUrl + "/api/cows/locations")
+  return fetch(baseUrl + "/api/cows/locations/fake")
 };
 
 export {

@@ -15,8 +15,7 @@ class Map extends Component {
         defaultZoom={18}
         defaultMapTypeId="satellite"
       >
-        <Marker icon={logo}
-          position={{lat: 50.601878, lng: 3.511215}}
+        <Marker position={{lat: 50.601878, lng: 3.511215}}
         />
 
         {this.props.children}

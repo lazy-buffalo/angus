@@ -1,13 +1,13 @@
 import React from 'react'
+import logo from "../../styles/assets/map-marker-alt.png";
 import {Marker} from "react-google-maps";
 
-export default class AngusMarker extends React.Component{
+export default class AngusMarker extends React.Component {
 
-  render(){
+  render() {
     return (
-      <Marker
-        position={this.props.item}
-      />
+      <Marker icon={logo}
+              position={this.props.item}/>
     )
   }
 
