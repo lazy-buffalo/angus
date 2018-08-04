@@ -37,6 +37,17 @@ class MapView extends React.Component {
       .then((response) => response.json())
       .then((data) => this.setState({
         cows: data
+      }, () => {
+        if (this.mapRef) {
+          let markers = [];//some array
+          let bounds = new google.maps.LatLngBounds();
+          _.forEach(this.state.cows, (cow) => {
+            _.forEach(cow.locations, (location) => {
+              bounds.extend(new google.maps.LatLng(location.latitude, location.longitude));
+            })
+          });
+          this.mapRef.fitBounds(bounds);
+        }
       }))
       .catch((error) => {
         console.log(error);
@@ -74,6 +85,21 @@ class MapView extends React.Component {
     });
   };
 
+  onMapRef = (map) => {
+    this.mapRef = map;
+  };
+
+  onDatesChange = ({startDate, endDate}) => {
+
+
+    this.setState({
+      startDate: startDate || moment(new Date()),
+      endDate: endDate || moment(new Date())
+    }, () => {
+      this.updateData();
+    })
+  };
+
   render() {
     return (
       <ContentWrapper>
@@ -85,14 +111,12 @@ class MapView extends React.Component {
           <div className="ml-auto">
             <div style={{display: 'flex'}}>
               <DateRangePicker
+
                 startDate={this.state.startDate} // momentPropTypes.momentObj or null,
                 startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
                 endDate={this.state.endDate} // momentPropTypes.momentObj or null,
                 endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
-                onDatesChange={({startDate, endDate}) => this.setState({
-                  startDate,
-                  endDate
-                })} // PropTypes.func.isRequired,
+                onDatesChange={this.onDatesChange} // PropTypes.func.isRequired,
                 focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                 onFocusChange={focusedInput => this.setState({focusedInput})} // PropTypes.func.isRequired,
               />
@@ -107,7 +131,9 @@ class MapView extends React.Component {
           </div>
           {/* END Language list */}
         </div>
-        <Map layer={this.renderHeatmap()} style={{height: 'calc(100vh - 210px)', margin: '-20px'}}>
+        <Map layer={this.renderHeatmap()}
+             style={{height: 'calc(100vh - 210px)', margin: '-20px'}}
+             mapRef={this.onMapRef.bind(this)}>
           {_.map(_.filter(this.state.cows,
             (cow) => cow.locations.length > 0),
             (item, index) =>
