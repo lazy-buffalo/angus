@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from "../../styles/assets/map-marker-alt.png";
+import logo from "../../styles/assets/map-marker.png";
 import {Marker} from "react-google-maps";
 
 export default class AngusMarker extends React.Component {

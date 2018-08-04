@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Marker, withGoogleMap, GoogleMap} from 'react-google-maps';
 
-import logo from '../../styles/assets/map-marker-alt.png'
 
 class Map extends Component {
   constructor(props) {

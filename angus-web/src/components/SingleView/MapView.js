@@ -78,9 +78,9 @@ class MapView extends React.Component {
   }
 
   renderHeatmap() {
-    return <HeatmapLayer options={{radius: 50}} data={_.flatMapDeep(this.state.cows, (item, index) => {
+    return <HeatmapLayer options={{radius: 40}} data={_.flatMapDeep(this.state.cows, (cow, index) => {
 
-        return _.map(item.locations, (location) => {
+        return _.map(cow.locations, (location) => {
           return {
             location: new google.maps.LatLng(location.latitude, location.longitude),
             weight: 1
