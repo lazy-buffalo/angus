@@ -32,20 +32,23 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     GpsEntry = x.GpsEntries.OrderByDescending(ge => ge.DateTime).First()
                 }).ToListAsync();
 
-            var result = cowLocations.Select(cowLocation => new CowLastLocationDto
+            var result = cowLocations.Select(cowLocation => new CowLocationDto
             {
                 CowId = cowLocation.Id,
                 CowName = cowLocation.Name,
-                Location = new LocationDto
+                Locations = new List<LocationDto>
                 {
-                    Id = cowLocation.GpsEntry.Id,
-                    LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
-                    Latitude = cowLocation.GpsEntry.LatitudeDeg
-                               + cowLocation.GpsEntry.LatitudeMinutes / 60
-                               + cowLocation.GpsEntry.LatitudeSecondes / 3600,
-                    Longitude = cowLocation.GpsEntry.LongitudeDeg
-                               + cowLocation.GpsEntry.LongitudeMinutes / 60
-                               + cowLocation.GpsEntry.LongitudeSecondes / 3600
+                    new LocationDto
+                    {
+                        Id = cowLocation.GpsEntry.Id,
+                        LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
+                        Latitude = cowLocation.GpsEntry.LatitudeDeg
+                                   + cowLocation.GpsEntry.LatitudeMinutes / 60
+                                   + cowLocation.GpsEntry.LatitudeSecondes / 3600,
+                        Longitude = cowLocation.GpsEntry.LongitudeDeg
+                                   + cowLocation.GpsEntry.LongitudeMinutes / 60
+                                   + cowLocation.GpsEntry.LongitudeSecondes / 3600
+                    }
                 }
             });
 
@@ -61,16 +64,19 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 ids.Add(i + 1);
             }
 
-            var result = ids.Select(id => new CowLastLocationDto
+            var result = ids.Select(id => new CowLocationDto
             {
                 CowId = id,
                 CowName = "Roberte",
-                Location = new LocationDto
+                Locations = new List<LocationDto>
                 {
-                    Id = id,
-                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
-                    Latitude = GetRandomLatitude(),
-                    Longitude = GetRandomLongitude()
+                    new LocationDto
+                    {
+                        Id = id,
+                        LocationDateTime = DateTime.UtcNow.ToLocalTime(),
+                        Latitude = GetRandomLatitude(),
+                        Longitude = GetRandomLongitude()
+                    }
                 }
             });
 
