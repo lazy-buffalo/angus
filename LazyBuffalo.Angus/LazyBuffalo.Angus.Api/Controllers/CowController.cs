@@ -137,13 +137,15 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 entryIds.Add(i + 1);
             }
 
+            var entryIdMultiplier = (int)Math.Pow(10, numberOfEntries.ToString().Length);
+
             var result = cowIds.Select(id => new CowLocationDto
             {
                 CowId = id,
                 CowName = "Roberte",
                 Locations = entryIds.Select(e => new LocationDto
                 {
-                    Id = Convert.ToInt64(id + e.ToString()),
+                    Id = entryIdMultiplier * id + e,
                     LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = GetRandomLatitude(),
                     Longitude = GetRandomLongitude()
