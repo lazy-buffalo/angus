@@ -1,14 +1,11 @@
-﻿using System;
-
-namespace LazyBuffalo.Angus.Api.Dtos
+﻿namespace LazyBuffalo.Angus.Api.Dtos
 {
-    public class CowLocationDto
+    public class CowLastLocationDto
     {
         public long CowId { get; set; }
         public string CowName { get; set; }
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
-        public DateTime LocationDateTime { get; set; }
+
+        public LocationDto Location { get; set; }
     }
 }
 
