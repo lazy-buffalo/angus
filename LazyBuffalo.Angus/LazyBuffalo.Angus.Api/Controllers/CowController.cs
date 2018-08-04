@@ -39,53 +39,58 @@ namespace LazyBuffalo.Angus.Api.Controllers
             return Ok();
         }
 
-        [HttpGet("last/{cowId?}")]
-        public async Task<IActionResult> GetLastLocations(long? cowId)
+        [HttpGet("last/{date}/{cowId?}")]
+        public async Task<IActionResult> GetLast(DateTime date, long? cowId)
         {
-            var cowLocations = await _context.Cows
-                .Where(x => x.GpsEntries.Any() && (!cowId.HasValue || cowId.Value == x.Id))
+            var cows = await _context.Cows
+                .Where(x => !cowId.HasValue || cowId.Value == x.Id)
                 .Select(x => new
                 {
                     x.Id,
                     x.Name,
-                    GpsEntry = x.GpsEntries.OrderByDescending(ge => ge.DateTime).First(),
-                    TemperatureEntry = x.TemperatureEntries.OrderByDescending(ge => ge.DateTime).First()
+                    GpsEntry = x.GpsEntries
+                        .Where(ge => ge.DateTime <= date)
+                        .OrderByDescending(ge => ge.DateTime)
+                        .FirstOrDefault(),
+                    TemperatureEntry = x.TemperatureEntries
+                        .OrderByDescending(ge => ge.DateTime)
+                        .FirstOrDefault()
                 }).ToListAsync();
 
-            var result = cowLocations.Select(cowLocation => new CowDto
+            var result = cows.Select(cow => new CowDto
             {
-                CowId = cowLocation.Id,
-                CowName = cowLocation.Name,
-                Locations = new List<LocationDto>
+                CowId = cow.Id,
+                CowName = cow.Name,
+                Locations = cow.GpsEntry != null ? new List<LocationDto>
                 {
                     new LocationDto
                     {
-                        Id = cowLocation.GpsEntry.Id,
-                        LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
-                        Latitude = cowLocation.GpsEntry.LatitudeDeg
-                                   + cowLocation.GpsEntry.LatitudeMinutes / 60
-                                   + cowLocation.GpsEntry.LatitudeMinutesDecimals / 600000,
-                        Longitude = cowLocation.GpsEntry.LongitudeDeg
-                                   + cowLocation.GpsEntry.LongitudeMinutes / 60
-                                   + cowLocation.GpsEntry.LatitudeMinutesDecimals / 600000
+                        Id = cow.GpsEntry.Id,
+                        LocationDateTime = cow.GpsEntry.DateTime.ToLocalTime(),
+                        Latitude = cow.GpsEntry.LatitudeDeg
+                                   + cow.GpsEntry.LatitudeMinutes / 60
+                                   + cow.GpsEntry.LatitudeMinutesDecimals / 600000,
+                        Longitude = cow.GpsEntry.LongitudeDeg
+                                   + cow.GpsEntry.LongitudeMinutes / 60
+                                   + cow.GpsEntry.LatitudeMinutesDecimals / 600000
                     }
-                },
-                Temperatures = new List<TemperatureDto>
+                } : new List<LocationDto>(),
+                Temperatures = cow.TemperatureEntry != null ? new List<TemperatureDto>
                 {
                     new TemperatureDto
                     {
-                        Id = cowLocation.TemperatureEntry.Id,
-                        Temperature = cowLocation.TemperatureEntry.Temperature,
-                        DateTime = cowLocation.TemperatureEntry.DateTime
+                        Id = cow.TemperatureEntry.Id,
+                        Temperature = cow.TemperatureEntry.Temperature,
+                        DateTime = cow.TemperatureEntry.DateTime
                     }
-                }
+                } : new List<TemperatureDto>()
             });
 
             return new JsonResult(result);
         }
 
-        [HttpGet("last/fake/{numberOfCows}/{cowId?}")]
-        public IActionResult GetFakeLastLocations(int numberOfCows, long? cowId)
+        [HttpGet("fake/last/{numberOfCows}/{date}/{cowId?}")]
+        public IActionResult GetFakeLast(int numberOfCows, DateTime date, long? cowId)
         {
             var ids = new List<int>();
             for (var i = 0; i < numberOfCows; i++)
@@ -128,16 +133,30 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
 
         [HttpGet("{cowId?}")]
-        public async Task<IActionResult> GetLocations(long? cowId)
+        public async Task<IActionResult> Get(long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
+            var endDate = DateTime.Today;
+
+            if (start.HasValue)
+            {
+                endDate = (end ?? start.Value).Date.AddDays(1);
+
+                if (endDate < start.Value.Date)
+                    return BadRequest("End date must be greater or equal than start date.");
+            }
+
             var cowLocations = await _context.Cows
-                .Where(x => x.GpsEntries.Any() && (!cowId.HasValue || cowId.Value == x.Id))
+                .Where(x => !cowId.HasValue || cowId.Value == x.Id)
                 .Select(x => new
                 {
                     x.Id,
                     x.Name,
-                    GpsEntries = x.GpsEntries.OrderByDescending(ge => ge.DateTime),
-                    TemperatureEntries = x.TemperatureEntries.OrderByDescending(ge => ge.DateTime)
+                    GpsEntries = x.GpsEntries
+                         .Where(ge => !start.HasValue || (ge.DateTime.Date >= start.Value.Date && ge.DateTime.Date < endDate))
+                         .OrderByDescending(ge => ge.DateTime),
+                    TemperatureEntries = x.TemperatureEntries
+                         .Where(te => !start.HasValue || (te.DateTime.Date >= start.Value.Date && te.DateTime.Date < endDate))
+                         .OrderByDescending(ge => ge.DateTime)
                 }).ToListAsync();
 
             var result = cowLocations.Select(cowLocation => new CowDto
@@ -168,10 +187,12 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
 
         [HttpGet("fake/{numberOfCows}/{numberOfEntries}/{cowId?}")]
-        public IActionResult GetFakeLocations(int numberOfCows, int numberOfEntries, long? cowId)
+        public IActionResult GetFake(int numberOfCows, int numberOfEntries, long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
+            var date = (start ?? DateTime.UtcNow).ToLocalTime();
+
             var cowIds = new List<int>();
-            for (var i = 0; i < numberOfCows; i++)
+            for (var i = 0; i < numberOfCows - 1; i++)
             {
                 cowIds.Add(i + 1);
             }
@@ -191,15 +212,35 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Locations = entryIds.Select(e => new LocationDto
                 {
                     Id = entryIdMultiplier * id + e,
-                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
+                    LocationDateTime = date,
                     Latitude = GetRandomLatitude(),
                     Longitude = GetRandomLongitude()
                 }).ToList(),
                 Temperatures = entryIds.Select(e => new TemperatureDto
                 {
                     Id = entryIdMultiplier * id + e,
-                    DateTime = DateTime.UtcNow.ToLocalTime(),
+                    DateTime = date,
                     Temperature = GetRandomTemperature()
+                }).ToList()
+            }).ToList();
+
+            result.Add(new CowDto
+            {
+
+                CowId = numberOfCows,
+                CowName = "Zelda",
+                Locations = entryIds.Select(e => new LocationDto
+                {
+                    Id = entryIdMultiplier * numberOfCows + e,
+                    LocationDateTime = date,
+                    Latitude = GetRandom(506026, 506030),
+                    Longitude = GetRandom(35085, 35093)
+                }).ToList(),
+                Temperatures = entryIds.Select(e => new TemperatureDto
+                {
+                    Id = entryIdMultiplier * numberOfCows + e,
+                    DateTime = date,
+                    Temperature = GetRandomSickTemperature()
                 }).ToList()
             });
 
@@ -210,7 +251,6 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             return new JsonResult(result);
         }
-
 
         private double GetRandomLatitude()
         {
@@ -230,8 +270,16 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
         private float GetRandomTemperature()
         {
-            const int minTemp = 250;
-            const int maxTemp = 360;
+            const int minTemp = 375;
+            const int maxTemp = 395;
+
+            return (float)GetRandom(minTemp, maxTemp, 10, 1);
+        }
+
+        private float GetRandomSickTemperature()
+        {
+            const int minTemp = 400;
+            const int maxTemp = 420;
 
             return (float)GetRandom(minTemp, maxTemp, 10, 1);
         }

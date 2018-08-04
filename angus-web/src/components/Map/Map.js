@@ -1,37 +1,42 @@
 import React, {Component} from 'react';
-import {Marker, withGoogleMap, GoogleMap} from 'react-google-maps';
+import {withGoogleMap, GoogleMap} from 'react-google-maps';
 
-import logo from '../../styles/assets/map-marker-alt.png'
+const MapRendering = withGoogleMap((props) => {
+
+  const onRef = (e) => {
+    if (props.ref) {
+      props.ref(e);
+    }
+  };
+
+  return (<GoogleMap
+    defaultCenter={{lat: 50.601878, lng: 3.511215}}
+    defaultZoom={18}
+    defaultMapTypeId="satellite"
+    ref={props.onMapMounted}
+  >
+    {props.children}
+  </GoogleMap>)
+});
 
 class Map extends Component {
   constructor(props) {
     super(props);
   }
 
+  handleMapMounted = (map) => {
+    this._map = map;
+    this.props.mapRef(map);
+  };
+
   render() {
-    const GoogleMapExample = withGoogleMap(props => (
-      <GoogleMap
-
-        defaultCenter={{lat: 50.601878, lng: 3.511215}}
-        defaultZoom={18}
-        defaultMapTypeId="satellite"
-      >
-        <Marker position={{lat: 50.601878, lng: 3.511215}}
-        />
-
-        {this.props.children}
-        {this.props.layer &&
-        (this.props.layer)
-        }
-      </GoogleMap>
-    ));
-
-    return (
-      <GoogleMapExample
-        containerElement={<div style={this.props.style} />}
-        mapElement={<div style={{height: `100%`}}/>}
-      />
-    );
+    return <MapRendering containerElement={<div style={this.props.style}/>}
+                         mapElement={<div style={{height: `100%`}}/>}
+                         onMapMounted={this.handleMapMounted}>
+      {this.props.children}
+      {this.props.layer &&
+      (this.props.layer)}
+    </MapRendering>;
   }
 }
 
