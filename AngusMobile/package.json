@@ -7,9 +7,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "lodash": "^4.17.10",
     "react": "16.4.1",
     "react-native": "0.55.2",
-    "react-native-maps": "^0.21.0",
+    "react-native-maps": "git+https://github.com/pjamrozowicz/react-native-maps.git",
     "react-navigation": "^2.11.2"
   },
   "devDependencies": {

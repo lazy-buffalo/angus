@@ -25,6 +25,9 @@ allprojects {
             url 'https://maven.google.com/'
             name 'Google'
         }
+		flatDir {
+			dirs "$rootDir/../node_modules/react-native-maps/libs"
+		}
     }
 }
 
@@ -35,3 +38,4 @@ ext {
     targetSdkVersion = 26
     supportLibVersion = "26.1.0"
 }
+
