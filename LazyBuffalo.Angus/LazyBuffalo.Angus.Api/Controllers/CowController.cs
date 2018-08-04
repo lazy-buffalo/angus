@@ -306,6 +306,9 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var allTemperatures = cows.SelectMany(x => x.Temperatures).Select(x => x.Temperature)
                 .ToArray();
 
+            if (allTemperatures.Length < 3)
+                return;
+
             var medianIndex = (int)((float)allTemperatures.Length / 2);
 
             double median;
@@ -359,6 +362,9 @@ namespace LazyBuffalo.Angus.Api.Controllers
         {
             var allLocations = cows.SelectMany(x => x.Locations)
                 .ToArray();
+
+            if (allLocations.Length < 3)
+                return;
 
             var allLongitude = allLocations.Select(x => x.Longitude)
                 .OrderBy(x => x)
