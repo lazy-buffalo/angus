@@ -28,7 +28,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     x.Id,
                     x.Name,
-                    GpsEntry = x.GpsEntries.Last()
+                    GpsEntry = x.GpsEntries.OrderByDescending(ge => ge.DateTime).Last()
                 }).ToListAsync();
 
             var result = cowLocations.Select(cowLocation => new CowLocationDto
