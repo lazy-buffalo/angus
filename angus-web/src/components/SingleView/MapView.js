@@ -65,25 +65,28 @@ class MapView extends React.Component {
           </div>
           {/* END Language list */}
         </div>
-        <Row>
-          <Col xs={12} className="text-center">
-            <Map layer={this.renderHeatmap()} style={{height: 'calc(100vh - 200px)'}}>
-              {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
-                                                                    item={{lat: item.location.latitude, lng: item.location.longitude}}
-                                                                    name={item.cowName}/>)}
-            </Map>
-          </Col>
-        </Row>
+        <Map layer={this.renderHeatmap()} style={{height: 'calc(100vh - 195px)', margin: '-20px'}}>
+          {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
+                                                                item={{
+                                                                  lat: _.first(item.locations).latitude,
+                                                                  lng: _.first(item.locations).longitude
+                                                                }}
+                                                                name={item.cowName}/>)}
+        </Map>
       </ContentWrapper>
     );
   }
 
   renderHeatmap() {
-    return <HeatmapLayer options={{radius: 100}} data={_.map(this.state.cows, (item, index) => {
-        return {
-          location: new google.maps.LatLng(item.location.latitude, item.location.longitude),
-          weight: 1
-        }
+    return <HeatmapLayer options={{radius: 50}} data={_.flatMapDeep(this.state.cows, (item, index) => {
+
+        return _.map(item.locations, (location) => {
+          return {
+            location: new google.maps.LatLng(location.latitude, location.longitude),
+            weight: 1
+          }
+        })
+
       }
     )}/>
   }
