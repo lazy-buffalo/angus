@@ -64,10 +64,10 @@ namespace LazyBuffalo.Angus.Api.Controllers
                         LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
                         Latitude = cowLocation.GpsEntry.LatitudeDeg
                                    + cowLocation.GpsEntry.LatitudeMinutes / 60
-                                   + cowLocation.GpsEntry.LatitudeSecondes / 3600,
+                                   + cowLocation.GpsEntry.LatitudeMinutesDecimals / 600000,
                         Longitude = cowLocation.GpsEntry.LongitudeDeg
                                    + cowLocation.GpsEntry.LongitudeMinutes / 60
-                                   + cowLocation.GpsEntry.LongitudeSecondes / 3600
+                                   + cowLocation.GpsEntry.LatitudeMinutesDecimals / 600000
                     }
                 },
                 Temperatures = new List<TemperatureDto>
@@ -149,11 +149,11 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     Id = ge.Id,
                     LocationDateTime = ge.DateTime.ToLocalTime(),
                     Latitude = ge.LatitudeDeg
-                           + ge.LatitudeMinutes / 60
-                           + ge.LatitudeSecondes / 3600,
+                            + ge.LatitudeMinutes / 60
+                            + ge.LatitudeMinutesDecimals / 600000,
                     Longitude = ge.LongitudeDeg
                             + ge.LongitudeMinutes / 60
-                            + ge.LongitudeSecondes / 3600
+                            + ge.LongitudeMinutesDecimals / 600000
                 }).ToList(),
                 Temperatures = cowLocation.TemperatureEntries.Select(x => new TemperatureDto
                 {
