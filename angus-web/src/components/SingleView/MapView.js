@@ -108,12 +108,15 @@ class MapView extends React.Component {
           {/* END Language list */}
         </div>
         <Map layer={this.renderHeatmap()} style={{height: 'calc(100vh - 210px)', margin: '-20px'}}>
-          {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
-                                                                item={{
-                                                                  lat: _.first(item.locations).latitude,
-                                                                  lng: _.first(item.locations).longitude
-                                                                }}
-                                                                name={item.cowName}/>)}
+          {_.map(_.filter(this.state.cows,
+            (cow) => cow.locations.length > 0),
+            (item, index) =>
+              <AngusMarker key={index}
+                           item={{
+                             lat: _.first(item.locations).latitude,
+                             lng: _.first(item.locations).longitude
+                           }}
+                           name={item.cowName}/>)}
         </Map>
       </ContentWrapper>
     );

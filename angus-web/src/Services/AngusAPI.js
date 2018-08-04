@@ -2,7 +2,7 @@ const baseUrl = 'https://lazybuffalo-api.azurewebsites.net';
 
 let debug = false;
 if (window.location.href.indexOf('localhost') > 0) {
-  debug = true;
+  debug = false;
 }
 
 const postZone = (zone) => {
