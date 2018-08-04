@@ -2,7 +2,6 @@ FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
 WORKDIR /app
 EXPOSE 55379
 EXPOSE 44384
-ENV ANGUS_API_CONNECTION_STRING=Server=tcp:lazybuffalo.database.windows.net,1433;Initial Catalog=lazy-buffalo-docker;Persist Security Info=False;User ID=buffalo;Password=Passw0rd!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 
 FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
