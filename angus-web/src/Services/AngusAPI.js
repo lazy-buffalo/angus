@@ -13,7 +13,7 @@ const postZone = (zone) => {
 };
 
 const getCows = () => {
-  return fetch(`${baseUrl}/api/cows/locations/${debug ? "fake/20/20" : ""}`)
+  return fetch(`${baseUrl}/api/cows/locations/${debug ? "fake/20/100" : ""}`)
 };
 
 export {
