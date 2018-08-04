@@ -37,10 +37,12 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 await _context.Cows.AddAsync(cow);
             }
 
+            var dateTime = new DateTime(rootobject.Metadata.Time.Ticks, DateTimeKind.Utc);
+
             var gpsEntry = new GpsEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 LatitudeDeg = Convert.ToInt32(playload[0]),
                 LatitudeMinutes = Convert.ToInt32(playload[1]),
                 LatitudeSecondes = Convert.ToDouble(Convert.ToInt32(playload[2]) + "." + Convert.ToInt32(playload[3])),
@@ -56,7 +58,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var temperatureEntry = new TemperatureEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 Temperature = Convert.ToSingle(Convert.ToInt32(playload[10]) + "." + Convert.ToInt32(playload[11]))
             };
 
@@ -65,7 +67,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var positionEntry = new PositionEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 IsUp = Convert.ToBoolean(Convert.ToInt32(playload[12])),
                 X = Convert.ToInt32(playload[13]),
                 Y = Convert.ToInt32(playload[14]),

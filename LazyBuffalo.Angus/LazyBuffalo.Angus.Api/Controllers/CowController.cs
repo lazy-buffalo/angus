@@ -35,7 +35,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             {
                 CowId = cowLocation.Id,
                 CowName = cowLocation.Name,
-                LocationDateTime = cowLocation.GpsEntry.DateTime,
+                LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
                 Latitude = cowLocation.GpsEntry.LatitudeDeg
                            + (double)cowLocation.GpsEntry.LatitudeMinutes / 60
                            + (double)cowLocation.GpsEntry.LatitudeSecondes / 3600,
