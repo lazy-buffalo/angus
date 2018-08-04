@@ -14,10 +14,12 @@ namespace LazyBuffalo.Angus.Api.Controllers
     public class CowController : ControllerBase
     {
         private readonly AngusDbContext _context;
+        private readonly Random _random;
 
         public CowController(AngusDbContext context)
         {
             _context = context;
+            _random = new Random(DateTime.Now.Millisecond);
         }
 
         [HttpGet("locations/last/{cowId?}")]
@@ -161,7 +163,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         }
 
 
-        private static double GetRandomLatitude()
+        private double GetRandomLatitude()
         {
             const int minRange = 35105;
             const int maxRange = 35130;
@@ -169,7 +171,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             return GetRandomCoordinate(minRange, maxRange, 1000);
         }
 
-        private static double GetRandomLongitude()
+        private double GetRandomLongitude()
         {
             const int minRange = 506012;
             const int maxRange = 506020;
@@ -177,9 +179,9 @@ namespace LazyBuffalo.Angus.Api.Controllers
             return GetRandomCoordinate(minRange, maxRange, 10000);
         }
 
-        private static double GetRandomCoordinate(double minNumber, double maxNumber, int divider)
+        private double GetRandomCoordinate(double minNumber, double maxNumber, int divider)
         {
-            var result = new Random(DateTime.Now.Millisecond).NextDouble() * (minNumber - maxNumber) + minNumber;
+            var result = _random.NextDouble() * (minNumber - maxNumber) + minNumber;
 
             return result / divider;
         }
