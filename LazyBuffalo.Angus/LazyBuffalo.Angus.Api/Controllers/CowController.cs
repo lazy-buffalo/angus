@@ -165,16 +165,16 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
         private double GetRandomLatitude()
         {
-            const int minRange = 35105;
-            const int maxRange = 35130;
+            const int minRange = 506012;
+            const int maxRange = 506020;
 
             return GetRandomCoordinate(minRange, maxRange, 10000);
         }
 
         private double GetRandomLongitude()
         {
-            const int minRange = 506012;
-            const int maxRange = 506020;
+            const int minRange = 35105;
+            const int maxRange = 35130;
 
             return GetRandomCoordinate(minRange, maxRange, 10000);
         }
