@@ -2,12 +2,13 @@
 
 namespace LazyBuffalo.Angus.Api.Dtos
 {
-    public class CowLocationDto
+    public class CowDto
     {
         public long CowId { get; set; }
         public string CowName { get; set; }
 
         public List<LocationDto> Locations { get; set; }
+        public List<TemperatureDto> Temperatures { get; set; }
     }
 }
 
