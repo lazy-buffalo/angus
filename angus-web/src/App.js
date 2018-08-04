@@ -12,6 +12,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import $ from 'jquery';
+import 'react-dates/initialize'
 
 // App Routes
 import Routes from './Routes';
@@ -22,6 +23,7 @@ import "./Vendor";
 import './styles/bootstrap.scss';
 import './styles/app.scss'
 import './styles/custom.scss'
+import 'react-dates/lib/css/_datepicker.css';
 
 // Disable warning "Synchronous XMLHttpRequest on the main thread is deprecated.."
 $.ajaxPrefilter(o => o.async = true);

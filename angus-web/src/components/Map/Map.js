@@ -8,6 +8,10 @@ class Map extends Component {
     super(props);
   }
 
+  shouldComponentUpdate(){
+    return false;
+  }
+
   render() {
     const GoogleMapExample = withGoogleMap(props => (
       <GoogleMap

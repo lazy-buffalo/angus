@@ -13,11 +13,11 @@ const postZone = (zone) => {
 };
 
 const getCows = () => {
-  return fetch(`${baseUrl}/api/cows/locations/${debug ? "fake/20/20" : ""}`)
+  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}`)
 };
 
 const deleteLocations = () => {
-  return fetch(baseUrl + "/api/location/delete", {
+  return fetch(baseUrl + "/api/delete/location", {
     method: "POST"
   })
 };
