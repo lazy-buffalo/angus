@@ -17,7 +17,7 @@ const getCows = () => {
 };
 
 const deleteLocations = () => {
-  return fetch(`${baseUrl}/api/delete/location`, {
+  return fetch(`${baseUrl}/api/delete/locations`, {
     method: "POST"
   })
 };
