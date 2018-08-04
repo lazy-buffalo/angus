@@ -9,9 +9,12 @@
 import React, {Component} from 'react';
 import {Button, Platform, StyleSheet, Text, View, DrawerLayoutAndroid, TouchableHighlight, SideBarMenu, ListView, YellowBox} from 'react-native';
 import Row from './components/row';
-import MapView, {Marker} from  'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE } from  'react-native-maps';
 import {createStackNavigator} from 'react-navigation';
 import markerIcon from './marker.png';
+import markerWarningIcon from './marker_warning.png';
+import {getCows} from "./services/angusAPI";
+import _ from "lodash";
 
 YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
@@ -20,6 +23,9 @@ const instructions = Platform.select({
   android:
     'Shake or press menu button for dev menu',
 });
+
+const MIN_ADULT_TEMPERATURE = 30;
+const MAX_ADULT_TEMPERATURE = 39;
 
 type Props = {};
 
@@ -42,20 +48,43 @@ class NavigationBarBackground extends React.Component {
 class MapScreen extends React.Component {
   static navigationOptions = {
     header: null
-};
+  };
 
   constructor() {
       super();
       const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
       this.state = {
           dataSource:ds.cloneWithRows([{first:"first", last:"last"}, {first:"first", last:"last"}]),
-          markers:[{title:"test", coordinate:{latitude:13.139238380834923,longitude:80.25188422300266}}]
+          cows:[]
       }
       this.openDrawer = this.openDrawer.bind(this);
   }
 
+  componentDidMount() {
+    getCows()
+        .then((response) => response.json())
+        .then((data) => this.setState({
+          cows: data
+        }))
+        .catch((error) => {
+          console.log(error);
+        });
+  }
+
   openDrawer() {
       this.drawer.openDrawer();
+  }
+
+  getData() {
+    return _.flatMapDeep(this.state.cows, (item, index) => {
+      return _.map(item.locations, (location) => {
+        return {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          weight: 1
+        }
+      })
+    });
   }
 
   render() {
@@ -71,6 +100,7 @@ class MapScreen extends React.Component {
         drawerPosition={DrawerLayoutAndroid.positions.left}
         renderNavigationView={() => navigationView}>
           <MapView style={styles.map}
+            mapType="satellite"
             showsUserLocation={false}
             showsPointsOfInterest={false}
             showsCompass={false}
@@ -81,18 +111,26 @@ class MapScreen extends React.Component {
             toolbarEnabled={false}
             showsMyLocationButton={false}
             initialRegion={{
-                latitude: 13.139238380834923,
-                longitude: 80.25188422300266,
+                latitude: 50.6014,
+                longitude: 3.5113,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
                 }}>
                 {
-                  this.state.markers.map((marker, i) => (
+                  this.state.cows.length > 0 &&
+                  (<MapView.Heatmap
+                    points={this.getData()}
+                    radius={40}
+                    heatmapMode={"POINTS_DENSITY"}/>)
+                }
+                {
+                  this.state.cows.map((cow, i) => (
                   <Marker
-                    key={i}
-                    title={marker.title}
-                    image={markerIcon}
-                    coordinate={marker.coordinate}/>
+                    key={cow.cowId}
+                    title={cow.cowName + " - " + cow.temperatures[0].temperature + "°C"}
+                    image={cow.temperatures[0].temperature > MIN_ADULT_TEMPERATURE && cow.temperatures[0].temperature < MAX_ADULT_TEMPERATURE ?
+                       markerIcon : markerWarningIcon}
+                    coordinate={cow.locations[0]}/>
                   ))
                 }
         </MapView>
