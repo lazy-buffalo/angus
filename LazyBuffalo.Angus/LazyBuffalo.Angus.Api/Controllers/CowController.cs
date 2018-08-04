@@ -39,11 +39,11 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 CowName = cowLocation.Name,
                 LocationDateTime = cowLocation.GpsEntry.DateTime.ToLocalTime(),
                 Latitude = cowLocation.GpsEntry.LatitudeDeg
-                           + (double)cowLocation.GpsEntry.LatitudeMinutes / 60
-                           + (double)cowLocation.GpsEntry.LatitudeSecondes / 3600,
+                           + cowLocation.GpsEntry.LatitudeMinutes / 60
+                           + cowLocation.GpsEntry.LatitudeSecondes / 3600,
                 Longitude = cowLocation.GpsEntry.LongitudeDeg
-                           + (double)cowLocation.GpsEntry.LongitudeMinutes / 60
-                           + (double)cowLocation.GpsEntry.LongitudeSecondes / 3600
+                           + cowLocation.GpsEntry.LongitudeMinutes / 60
+                           + cowLocation.GpsEntry.LongitudeSecondes / 3600
             });
 
             return new JsonResult(result);
@@ -59,7 +59,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 1,
                     CowName = "Roberte",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.60192548443745,
                     Longitude = 3.51157760612557
                 },
@@ -67,7 +67,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 2,
                     CowName = "Marguerite",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.601907041658286,
                     Longitude = 3.5116938560830704
                 },
@@ -75,7 +75,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 3,
                     CowName = "Kiri",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.60185369942146,
                     Longitude = 3.511409115792844
                 },
@@ -83,7 +83,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 4,
                     CowName = "Amandine",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.60186164401623,
                     Longitude = 3.511526706854852
                 },
@@ -91,7 +91,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 5,
                     CowName = "Marcele",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.60189342237546,
                     Longitude = 3.511735493023366
                 },
@@ -99,7 +99,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     CowId = 6,
                     CowName = "Zelda",
-                    LocationDateTime = DateTime.UtcNow,
+                    LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                     Latitude = 50.601936558444415,
                     Longitude = 3.51033373468681
                 }
