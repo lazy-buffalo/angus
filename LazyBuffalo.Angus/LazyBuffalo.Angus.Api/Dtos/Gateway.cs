@@ -21,7 +21,7 @@ namespace LazyBuffalo.Angus.Api.Dtos
         public int Rssi { get; set; }
 
         [JsonProperty("snr")]
-        public int Snr { get; set; }
+        public float Snr { get; set; }
 
         [JsonProperty("rf_chain")]
         public int RfChain { get; set; }
@@ -33,6 +33,6 @@ namespace LazyBuffalo.Angus.Api.Dtos
         public float Longitude { get; set; }
 
         [JsonProperty("altitude")]
-        public int Altitude { get; set; }
+        public float Altitude { get; set; }
     }
 }
