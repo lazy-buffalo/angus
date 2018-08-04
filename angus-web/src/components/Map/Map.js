@@ -21,17 +21,17 @@ class Map extends Component {
         {this.props.children}
         {this.props.layer &&
         (this.props.layer)
-        }}
+        }
       </GoogleMap>
     ));
+
     return (
-      <div>
-        <GoogleMapExample
-          containerElement={<div style={{height: `700px`, width: '100%'}}/>}
-          mapElement={<div style={{height: `100%`}}/>}
-        />
-      </div>
+      <GoogleMapExample
+        containerElement={<div style={{height: `700px`, width: '100%'}}/>}
+        mapElement={<div style={{height: `100%`}}/>}
+      />
     );
   }
-};
+}
+
 export default Map;
