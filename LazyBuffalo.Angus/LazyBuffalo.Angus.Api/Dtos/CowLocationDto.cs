@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 namespace LazyBuffalo.Angus.Api.Dtos
 {
@@ -6,9 +6,8 @@ namespace LazyBuffalo.Angus.Api.Dtos
     {
         public long CowId { get; set; }
         public string CowName { get; set; }
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
-        public DateTime LocationDateTime { get; set; }
+
+        public List<LocationDto> Locations { get; set; }
     }
 }
 

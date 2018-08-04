@@ -37,17 +37,19 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 await _context.Cows.AddAsync(cow);
             }
 
+            var dateTime = new DateTime(rootobject.Metadata.Time.Ticks, DateTimeKind.Utc);
+
             var gpsEntry = new GpsEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 LatitudeDeg = Convert.ToInt32(playload[0]),
                 LatitudeMinutes = Convert.ToInt32(playload[1]),
-                LatitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[2]) + Convert.ToInt32(playload[3]).ToString()),
+                LatitudeSecondes = 60 * Convert.ToDouble("0." + Convert.ToInt32(playload[2]) + Convert.ToInt32(playload[3])),
                 LatitudeDirection = Convert.ToChar(playload[4]),
                 LongitudeDeg = Convert.ToInt32(playload[5]),
                 LongitudeMinutes = Convert.ToInt32(playload[6]),
-                LongitudeSecondes = Convert.ToInt32(Convert.ToInt32(playload[7]) + Convert.ToInt32(playload[8]).ToString()),
+                LongitudeSecondes = 60 * Convert.ToDouble("0." + Convert.ToInt32(playload[7]) + Convert.ToInt32(playload[8])),
                 LongitudeDirection = Convert.ToChar(playload[9])
             };
 
@@ -56,7 +58,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var temperatureEntry = new TemperatureEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 Temperature = Convert.ToSingle(Convert.ToInt32(playload[10]) + "." + Convert.ToInt32(playload[11]))
             };
 
@@ -65,7 +67,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var positionEntry = new PositionEntry
             {
                 Cow = cow,
-                DateTime = rootobject.Metadata.Time,
+                DateTime = dateTime,
                 IsUp = Convert.ToBoolean(Convert.ToInt32(playload[12])),
                 X = Convert.ToInt32(playload[13]),
                 Y = Convert.ToInt32(playload[14]),
