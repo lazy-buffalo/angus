@@ -7,14 +7,11 @@ class Map extends Component {
     super(props);
   }
 
-  shouldComponentUpdate(){
-    return false;
-  }
+
 
   render() {
     const GoogleMapExample = withGoogleMap(props => (
       <GoogleMap
-
         defaultCenter={{lat: 50.601878, lng: 3.511215}}
         defaultZoom={18}
         defaultMapTypeId="satellite"

@@ -12,8 +12,8 @@ const postZone = (zone) => {
   })
 };
 
-const getCows = () => {
-  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}`)
+const getCows = (start, end) => {
+  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}?start=${start}&end=${end}`)
 };
 
 const deleteLocations = () => {
