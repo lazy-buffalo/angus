@@ -130,11 +130,15 @@ namespace LazyBuffalo.Angus.Api.Controllers
         [HttpGet("{cowId?}")]
         public async Task<IActionResult> GetLocations(long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
-            var startDate = (start ?? DateTime.Today).Date;
-            var endDate = (end ?? DateTime.Today).Date.AddDays(1);
+            var endDate = DateTime.Today;
 
-            if (endDate < startDate)
-                throw new ArgumentException("End date must be greater or equal than start date.");
+            if (start.HasValue)
+            {
+                endDate = (end ?? start.Value).Date.AddDays(1);
+
+                if (endDate < start.Value.Date)
+                    return BadRequest("End date must be greater or equal than start date.");
+            }
 
             var cowLocations = await _context.Cows
                 .Where(x => !cowId.HasValue || cowId.Value == x.Id)
@@ -143,10 +147,10 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     x.Id,
                     x.Name,
                     GpsEntries = x.GpsEntries
-                         .Where(ge => ge.DateTime.Date >= startDate && ge.DateTime.Date < endDate)
+                         .Where(ge => !start.HasValue || (ge.DateTime.Date >= start.Value.Date && ge.DateTime.Date < endDate))
                          .OrderByDescending(ge => ge.DateTime),
                     TemperatureEntries = x.TemperatureEntries
-                         .Where(te => te.DateTime.Date >= startDate && te.DateTime.Date < endDate)
+                         .Where(te => !start.HasValue || (te.DateTime.Date >= start.Value.Date && te.DateTime.Date < endDate))
                          .OrderByDescending(ge => ge.DateTime)
                 }).ToListAsync();
 
