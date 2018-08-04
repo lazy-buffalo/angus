@@ -29,7 +29,11 @@ class MapView extends React.Component {
   }
 
   componentDidMount() {
-    getCows()
+    this.updateData();
+  }
+
+  updateData() {
+    getCows(this.state.startDate.format('YYYY/MM/DD'), this.state.endDate.format('YYYY/MM/DD'))
       .then((response) => response.json())
       .then((data) => this.setState({
         cows: data
@@ -44,6 +48,8 @@ class MapView extends React.Component {
     this.setState({
       startDate: this.state.startDate.subtract(diff + 1, 'days'),
       endDate: this.state.endDate.subtract(diff + 1, 'days')
+    }, () => {
+      this.updateData();
     });
   }
 
@@ -52,6 +58,8 @@ class MapView extends React.Component {
     this.setState({
       startDate: this.state.startDate.add(diff + 1, 'days'),
       endDate: this.state.endDate.add(diff + 1, 'days')
+    }, () => {
+      this.updateData();
     });
   }
 

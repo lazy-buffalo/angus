@@ -1,7 +1,7 @@
 const baseUrl = 'https://lazybuffalo-api.azurewebsites.net';
 
 let debug = false;
-if (window.location.href.indexOf('localhost')) {
+if (window.location.href.indexOf('localhost') > 0) {
   debug = true;
 }
 
@@ -12,8 +12,8 @@ const postZone = (zone) => {
   })
 };
 
-const getCows = () => {
-  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}`)
+const getCows = (start, end) => {
+  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}?start=${start}&end=${end}`)
 };
 
 const deleteLocations = () => {
