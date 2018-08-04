@@ -22,8 +22,25 @@ namespace LazyBuffalo.Angus.Api.Controllers
             _random = new Random(DateTime.Now.Millisecond);
         }
 
+        [HttpPost("locations/delete/{gpsEntryId?}")]
+        public async Task<IActionResult> ClearGpsEntries(long? gpsEntryId)
+        {
+            var gpsEntries = await _context.GpsEntries
+                .Where(x => !gpsEntryId.HasValue || gpsEntryId.Value == x.Id)
+                .ToListAsync();
+
+            foreach (var gpsEntry in gpsEntries)
+            {
+                _context.Remove(gpsEntry);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         [HttpGet("locations/last/{cowId?}")]
-        public async Task<IActionResult> GetLastLocations(int? cowId)
+        public async Task<IActionResult> GetLastLocations(long? cowId)
         {
             var cowLocations = await _context.Cows
                 .Where(x => x.GpsEntries.Any() && (!cowId.HasValue || cowId.Value == x.Id))
@@ -58,7 +75,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         }
 
         [HttpGet("locations/last/fake/{numberOfCows}/{cowId?}")]
-        public IActionResult GetFakeLastLocations(int numberOfCows, int? cowId)
+        public IActionResult GetFakeLastLocations(int numberOfCows, long? cowId)
         {
             var ids = new List<int>();
             for (var i = 0; i < numberOfCows; i++)
@@ -92,7 +109,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
 
         [HttpGet("locations/{cowId?}")]
-        public async Task<IActionResult> GetLocations(int? cowId)
+        public async Task<IActionResult> GetLocations(long? cowId)
         {
             var cowLocations = await _context.Cows
                 .Where(x => x.GpsEntries.Any() && (!cowId.HasValue || cowId.Value == x.Id))
@@ -125,7 +142,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
 
         [HttpGet("locations/fake/{numberOfCows}/{numberOfEntries}/{cowId?}")]
-        public IActionResult GetFakeLocations(int numberOfCows, int numberOfEntries, int? cowId)
+        public IActionResult GetFakeLocations(int numberOfCows, int numberOfEntries, long? cowId)
         {
             var cowIds = new List<int>();
             for (var i = 0; i < numberOfCows; i++)
@@ -181,7 +198,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
         private double GetRandomCoordinate(long minNumber, long maxNumber, long divider = 10000)
         {
-            const int precision = 1000000000;
+            const int precision = 1000000;
             divider = divider * precision;
             minNumber = minNumber * precision;
             maxNumber = maxNumber * precision;
