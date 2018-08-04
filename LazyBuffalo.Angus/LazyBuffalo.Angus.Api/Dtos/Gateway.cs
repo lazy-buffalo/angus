@@ -9,7 +9,7 @@ namespace LazyBuffalo.Angus.Api.Dtos
         public string GtwId { get; set; }
 
         [JsonProperty("timestamp")]
-        public int Timestamp { get; set; }
+        public long Timestamp { get; set; }
 
         [JsonProperty("time")]
         public DateTime Time { get; set; }
