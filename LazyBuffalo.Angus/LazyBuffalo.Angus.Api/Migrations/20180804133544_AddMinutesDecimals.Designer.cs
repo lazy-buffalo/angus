@@ -4,14 +4,16 @@ using LazyBuffalo.Angus.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LazyBuffalo.Angus.Api.Migrations
 {
     [DbContext(typeof(AngusDbContext))]
-    partial class AngusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180804133544_AddMinutesDecimals")]
+    partial class AddMinutesDecimals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,6 +56,8 @@ namespace LazyBuffalo.Angus.Api.Migrations
 
                     b.Property<double>("LatitudeMinutesDecimals");
 
+                    b.Property<double>("LatitudeSecondes");
+
                     b.Property<double>("LongitudeDeg");
 
                     b.Property<string>("LongitudeDirection")
@@ -63,6 +67,8 @@ namespace LazyBuffalo.Angus.Api.Migrations
                     b.Property<double>("LongitudeMinutes");
 
                     b.Property<double>("LongitudeMinutesDecimals");
+
+                    b.Property<double>("LongitudeSecondes");
 
                     b.HasKey("Id");
 

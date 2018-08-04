@@ -1,8 +1,12 @@
 import React from 'react'
 import ContentWrapper from "../Layout/ContentWrapper";
 import {Trans, translate} from "react-i18next";
-import {Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row} from "reactstrap";
+import {Col, Row} from "reactstrap";
+
+import { DrawingManager } from "react-google-maps/lib/components/drawing/DrawingManager";
 import Map from "../Map/Map";
+
+const google = window.google;
 
 class GrazingView extends React.Component {
 
@@ -17,7 +21,27 @@ class GrazingView extends React.Component {
         <Row>
           <Col xs={12} className="text-center">
             <Map>
-
+              <DrawingManager
+                defaultDrawingMode={google.maps.drawing.OverlayType.POLYGON}
+                defaultOptions={{
+                  drawingControl: true,
+                  drawingMode: google.maps.drawing.OverlayType.MARKER,
+                  drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [
+                      google.maps.drawing.OverlayType.POLYGON,
+                    ],
+                  },
+                  polygonOptions: {
+                    fillColor: `#ffff00`,
+                    fillOpacity: 1,
+                    strokeWeight: 5,
+                    clickable: false,
+                    editable: true,
+                    zIndex: 1,
+                  },
+                }}
+              />
             </Map>
           </Col>
         </Row>

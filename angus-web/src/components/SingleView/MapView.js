@@ -2,10 +2,14 @@ import React from 'react';
 import {translate, Trans} from 'react-i18next';
 import ContentWrapper from '../Layout/ContentWrapper';
 import {Row, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
-import Map from "../Map/Map";
 import _ from "lodash";
+import HeatmapLayer from "react-google-maps/lib/components/visualization/HeatmapLayer";
+
+import Map from "../Map/Map";
 import AngusMarker from "../Map/AngusMarker";
 import {getCows} from "../../Services/AngusAPI";
+
+const google = window.google;
 
 class MapView extends React.Component {
 
@@ -61,16 +65,30 @@ class MapView extends React.Component {
           </div>
           {/* END Language list */}
         </div>
-        <Row>
-          <Col xs={12} className="text-center">
-            <Map>
-              {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
-                                                                    item={{lat: item.latitude, lng: item.longitude}}/>)}
-            </Map>
-          </Col>
-        </Row>
+        <Map layer={this.renderHeatmap()} style={{height: 'calc(100vh - 195px)', margin: '-20px'}}>
+          {_.map(this.state.cows, (item, index) => <AngusMarker key={index}
+                                                                item={{
+                                                                  lat: _.first(item.locations).latitude,
+                                                                  lng: _.first(item.locations).longitude
+                                                                }}
+                                                                name={item.cowName}/>)}
+        </Map>
       </ContentWrapper>
     );
+  }
+
+  renderHeatmap() {
+    return <HeatmapLayer options={{radius: 50}} data={_.flatMapDeep(this.state.cows, (item, index) => {
+
+        return _.map(item.locations, (location) => {
+          return {
+            location: new google.maps.LatLng(location.latitude, location.longitude),
+            weight: 1
+          }
+        })
+
+      }
+    )}/>
   }
 }
 
