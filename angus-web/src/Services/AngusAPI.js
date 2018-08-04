@@ -16,7 +16,14 @@ const getCows = () => {
   return fetch(`${baseUrl}/api/cows/locations/${debug ? "fake/20/20" : ""}`)
 };
 
+const deleteLocations = () => {
+  return fetch(baseUrl + "/api/location/delete", {
+    method: "POST"
+  })
+};
+
 export {
   postZone,
-  getCows
+  getCows,
+  deleteLocations
 }
