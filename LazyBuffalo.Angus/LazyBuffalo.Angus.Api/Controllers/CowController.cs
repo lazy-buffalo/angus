@@ -187,7 +187,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var date = (start ?? DateTime.UtcNow).ToLocalTime();
 
             var cowIds = new List<int>();
-            for (var i = 0; i < numberOfCows; i++)
+            for (var i = 0; i < numberOfCows - 1; i++)
             {
                 cowIds.Add(i + 1);
             }
@@ -217,6 +217,26 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     DateTime = date,
                     Temperature = GetRandomTemperature()
                 }).ToList()
+            }).ToList();
+
+            result.Add(new CowDto
+            {
+
+                CowId = numberOfCows,
+                CowName = "Zelda",
+                Locations = entryIds.Select(e => new LocationDto
+                {
+                    Id = entryIdMultiplier * numberOfCows + e,
+                    LocationDateTime = date,
+                    Latitude = GetRandom(506026, 506030),
+                    Longitude = GetRandom(35085, 35093)
+                }).ToList(),
+                Temperatures = entryIds.Select(e => new TemperatureDto
+                {
+                    Id = entryIdMultiplier * numberOfCows + e,
+                    DateTime = date,
+                    Temperature = GetRandomSickTemperature()
+                }).ToList()
             });
 
             if (cowId.HasValue)
@@ -226,7 +246,6 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             return new JsonResult(result);
         }
-
 
         private double GetRandomLatitude()
         {
@@ -248,6 +267,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
         {
             const int minTemp = 375;
             const int maxTemp = 395;
+
+            return (float)GetRandom(minTemp, maxTemp, 10, 1);
+        }
+
+        private float GetRandomSickTemperature()
+        {
+            const int minTemp = 400;
+            const int maxTemp = 420;
 
             return (float)GetRandom(minTemp, maxTemp, 10, 1);
         }
