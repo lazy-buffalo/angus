@@ -19,6 +19,9 @@ class Map extends Component {
         />
 
         {this.props.children}
+        {this.props.layer &&
+        (this.props.layer)
+        }}
       </GoogleMap>
     ));
     return (
