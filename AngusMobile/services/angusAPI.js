@@ -13,7 +13,12 @@ const getCows = (start, end) => {
   return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/20" : ""}?start=${start}&end=${end}`)
 };
 
+const getGrazing = () => {
+  return fetch(baseUrl + "/api/grazing")
+};
+
 export {
   postZone,
-  getCows
+  getCows,
+  getGrazing
 }
