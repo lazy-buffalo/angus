@@ -16,4 +16,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Xaml">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\System.Xaml.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

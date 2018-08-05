@@ -14,6 +14,7 @@ import {createStackNavigator} from 'react-navigation';
 import markerIcon from './marker.png';
 import markerWarningIcon from './marker_warning.png';
 import {getCows} from "./services/angusAPI";
+import CalendarPicker from 'react-native-calendar-picker';
 import _ from "lodash";
 
 YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
@@ -55,10 +56,26 @@ class MapScreen extends React.Component {
       const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
       this.state = {
           dataSource:ds.cloneWithRows([{first:"first", last:"last"}, {first:"first", last:"last"}]),
-          cows:[]
+          cows:[],
+          selectedStartDate: null,
+          selectedEndDate: null
       }
       this.openDrawer = this.openDrawer.bind(this);
+      this.onDateChange = this.onDateChange.bind(this);
   }
+
+  onDateChange(date, type) {
+      if (type === 'END_DATE') {
+        this.setState({
+          selectedEndDate: date,
+        });
+      } else {
+        this.setState({
+          selectedStartDate: date,
+          selectedEndDate: null,
+        });
+      }
+    }
 
   componentDidMount() {
     getCows()
@@ -87,11 +104,27 @@ class MapScreen extends React.Component {
     });
   }
 
+  // <ListView
+  //   dataSource={this.state.dataSource}
+  //   renderRow={(data) => <Row name={data} />}/>
   render() {
+    const { selectedStartDate, selectedEndDate } = this.state;
+    const maxDate = new Date(); // today
+    const startDate = selectedStartDate ? selectedStartDate.toString() : '';
+    const endDate = selectedEndDate ? selectedEndDate.toString() : '';
     var navigationView = (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={(data) => <Row name={data} />}/>
+      <View style={styles.container}>
+       <CalendarPicker
+         width={300}
+         maxDate={maxDate}
+         weekdays={['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']}
+         months={['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']}
+         previousTitle={'Précédent'}
+         nextTitle={'Suivant'}
+         startFromMonday={true}
+         allowRangeSelection={true}
+         onDateChange={this.onDateChange}/>
+     </View>
     );
     return (
       <DrawerLayoutAndroid
@@ -135,7 +168,7 @@ class MapScreen extends React.Component {
                 }
         </MapView>
         <Button
-          title="Menu"
+          title="Options"
           onPress={this.openDrawer}/>
       </DrawerLayoutAndroid>
     );
@@ -157,10 +190,8 @@ const styles = StyleSheet.create({
     height: 24,
   },
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    flex:1,
+    marginTop:20
   },
   welcome: {
     fontSize: 20,
@@ -171,5 +202,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
+  },
+  centered: {
+    textAlign: 'center',
+    color: '#333333',
   },
 });
