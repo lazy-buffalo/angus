@@ -66,6 +66,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     new LocationDto
                     {
                         Id = cow.GpsEntry.Id,
+                        CowId = cow.Id,
                         LocationDateTime = cow.GpsEntry.DateTime.ToLocalTime(),
                         Latitude = cow.GpsEntry.LatitudeDeg
                                    + cow.GpsEntry.LatitudeMinutes / 60
@@ -107,6 +108,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     new LocationDto
                     {
                         Id = id,
+                        CowId = id,
                         LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                         Latitude = GetRandomLatitude(),
                         Longitude = GetRandomLongitude()
@@ -145,7 +147,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     return BadRequest("End date must be greater or equal than start date.");
             }
 
-            var cowLocations = await _context.Cows
+            var cows = await _context.Cows
                 .Where(x => !cowId.HasValue || cowId.Value == x.Id)
                 .Select(x => new
                 {
@@ -159,13 +161,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
                          .OrderByDescending(ge => ge.DateTime)
                 }).ToListAsync();
 
-            var result = cowLocations.Select(cowLocation => new CowDto
+            var result = cows.Select(cow => new CowDto
             {
-                CowId = cowLocation.Id,
-                CowName = cowLocation.Name,
-                Locations = cowLocation.GpsEntries.Select(ge => new LocationDto
+                CowId = cow.Id,
+                CowName = cow.Name,
+                Locations = cow.GpsEntries.Select(ge => new LocationDto
                 {
                     Id = ge.Id,
+                    CowId = cow.Id,
                     LocationDateTime = ge.DateTime.ToLocalTime(),
                     Latitude = ge.LatitudeDeg
                             + ge.LatitudeMinutes / 60
@@ -174,13 +177,16 @@ namespace LazyBuffalo.Angus.Api.Controllers
                             + ge.LongitudeMinutes / 60
                             + ge.LongitudeMinutesDecimals / 600000
                 }).ToList(),
-                Temperatures = cowLocation.TemperatureEntries.Select(x => new TemperatureDto
+                Temperatures = cow.TemperatureEntries.Select(x => new TemperatureDto
                 {
                     Id = x.Id,
                     Temperature = x.Temperature,
                     DateTime = x.DateTime
                 }).ToList()
-            });
+            }).ToList();
+
+            HasStrangeLocation(result);
+            HasStrangeTemperature(result);
 
             return new JsonResult(result);
         }
@@ -212,6 +218,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Locations = entryIds.Select(e => new LocationDto
                 {
                     Id = entryIdMultiplier * id + e,
+                    CowId = id,
                     LocationDateTime = date,
                     Latitude = GetRandomLatitude(),
                     Longitude = GetRandomLongitude()
@@ -232,6 +239,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Locations = entryIds.Select(e => new LocationDto
                 {
                     Id = entryIdMultiplier * numberOfCows + e,
+                    CowId = numberOfCows,
                     LocationDateTime = date,
                     Latitude = GetRandom(506026, 506030),
                     Longitude = GetRandom(35085, 35093)
@@ -248,6 +256,9 @@ namespace LazyBuffalo.Angus.Api.Controllers
             {
                 result = result.Where(x => x.CowId == cowId.Value).ToList();
             }
+
+            HasStrangeLocation(result);
+            HasStrangeTemperature(result);
 
             return new JsonResult(result);
         }
@@ -293,6 +304,158 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var result = (int)(_random.NextDouble() * (maxNumber - minNumber + 1)) + minNumber;
 
             return (double)result / divider;
+        }
+
+        private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
+        {
+            var allTemperatures = cows.SelectMany(x => x.Temperatures).Select(x => x.Temperature)
+                .ToArray();
+
+            if (allTemperatures.Length < 4)
+                return;
+
+            var medianIndex = (int)((float)allTemperatures.Length / 2);
+
+            double median;
+            if (medianIndex % 2 == 0)
+            {
+                median = (allTemperatures[medianIndex] + allTemperatures[medianIndex + 1]) / 2;
+            }
+            else
+            {
+                median = allTemperatures[medianIndex];
+            }
+
+            var q1Index = (int)((float)medianIndex / 2) - 1;
+
+            double q1;
+            if (q1Index % 2 == 0)
+            {
+                q1 = (allTemperatures[q1Index] + allTemperatures[q1Index + 1]) / 2;
+            }
+            else
+            {
+                q1 = allTemperatures[q1Index];
+            }
+
+            var q3Index = q1Index + medianIndex;
+
+            double q3;
+            if (q3Index % 2 == 0)
+            {
+                q3 = (allTemperatures[q3Index] + allTemperatures[q3Index + 1]) / 2;
+            }
+            else
+            {
+                q3 = allTemperatures[q3Index];
+            }
+
+            var iqr = q3 - q1;
+
+            var diff = iqr * 1.5;
+
+            foreach (var cow in cows)
+            {
+                if (cow.Temperatures.Any(x => x.Temperature - median > diff))
+                {
+                    cow.HasStrangeTemperature = true;
+                }
+            }
+        }
+
+        private static void HasStrangeLocation(IReadOnlyCollection<CowDto> cows)
+        {
+            var locationsByHour = cows.SelectMany(x => x.Locations)
+                .GroupBy(x => x.LocationDateTime.ToString("yy-MM-dd HH:00:00"))
+                .ToList();
+
+            var allStrangeCowIds = new List<long>();
+            foreach (var locationsGroup in locationsByHour)
+            {
+                var strangeCowIdsForSet = GetCowsWithStrangeLocation(locationsGroup.ToList());
+                allStrangeCowIds.AddRange(strangeCowIdsForSet);
+            }
+
+            var strangeCowIds = allStrangeCowIds
+                .GroupBy(x => x)
+                .Where(x => x.Count() > locationsByHour.Count * 0.25)
+                .Select(x => x.Key);
+
+            foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
+            {
+                strangeCow.HasStrangeLocation = true;
+            }
+        }
+
+        private static IEnumerable<long> GetCowsWithStrangeLocation(IReadOnlyCollection<LocationDto> locations)
+        {
+            if (locations.Count < 4)
+                return new List<long>();
+
+            var allLongitude = locations.Select(x => x.Longitude)
+                .OrderBy(x => x)
+                .ToArray();
+
+            var allLatitude = locations.Select(x => x.Latitude)
+                .OrderBy(x => x)
+                .ToArray();
+
+            var medianIndex = (int)((float)locations.Count / 2);
+
+            double medianLongitude;
+            double medianLatitude;
+            if (medianIndex % 2 == 0)
+            {
+                medianLongitude = (allLongitude[medianIndex] + allLongitude[medianIndex + 1]) / 2;
+                medianLatitude = (allLatitude[medianIndex] + allLatitude[medianIndex + 1]) / 2;
+            }
+            else
+            {
+                medianLongitude = allLongitude[medianIndex];
+                medianLatitude = allLatitude[medianIndex];
+            }
+
+            var q1Index = (int)((float)medianIndex / 2) - 1;
+
+            double q1Longitude;
+            double q1Latitude;
+            if (q1Index % 2 == 0)
+            {
+                q1Longitude = (allLongitude[q1Index] + allLongitude[q1Index + 1]) / 2;
+                q1Latitude = (allLatitude[q1Index] + allLatitude[q1Index + 1]) / 2;
+            }
+            else
+            {
+                q1Longitude = allLongitude[q1Index];
+                q1Latitude = allLatitude[q1Index];
+            }
+
+            var q3Index = q1Index + medianIndex;
+
+            double q3Longitude;
+            double q3Latitude;
+            if (q3Index % 2 == 0)
+            {
+                q3Longitude = (allLongitude[q3Index] + allLongitude[q3Index + 1]) / 2;
+                q3Latitude = (allLatitude[q3Index] + allLatitude[q3Index + 1]) / 2;
+            }
+            else
+            {
+                q3Longitude = allLongitude[q3Index];
+                q3Latitude = allLatitude[q3Index];
+            }
+
+            var iqrLongitude = q3Longitude - q1Longitude;
+            var iqrLatitude = q3Latitude - q1Latitude;
+
+            var diffLongitude = iqrLongitude * 1.5;
+            var diffLatitude = iqrLatitude * 1.5;
+
+            return locations
+                .Where(x =>
+                    (x.Longitude - medianLongitude) > diffLongitude || (x.Latitude - medianLatitude) > diffLatitude)
+                .Select(x => x.CowId)
+                .Distinct();
         }
     }
 }
