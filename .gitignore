@@ -612,5 +612,8 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-
 # End of https://www.gitignore.io/api/node,reactnative,visualstudio
+
+# Do not version the key files for embedded software
+keys.h
+
