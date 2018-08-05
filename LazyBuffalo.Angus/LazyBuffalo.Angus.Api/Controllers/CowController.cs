@@ -66,6 +66,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     new LocationDto
                     {
                         Id = cow.GpsEntry.Id,
+                        CowId = cow.Id,
                         LocationDateTime = cow.GpsEntry.DateTime.ToLocalTime(),
                         Latitude = cow.GpsEntry.LatitudeDeg
                                    + cow.GpsEntry.LatitudeMinutes / 60
@@ -107,6 +108,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     new LocationDto
                     {
                         Id = id,
+                        CowId = id,
                         LocationDateTime = DateTime.UtcNow.ToLocalTime(),
                         Latitude = GetRandomLatitude(),
                         Longitude = GetRandomLongitude()
@@ -159,13 +161,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
                          .OrderByDescending(ge => ge.DateTime)
                 }).ToListAsync();
 
-            var result = cows.Select(cowLocation => new CowDto
+            var result = cows.Select(cow => new CowDto
             {
-                CowId = cowLocation.Id,
-                CowName = cowLocation.Name,
-                Locations = cowLocation.GpsEntries.Select(ge => new LocationDto
+                CowId = cow.Id,
+                CowName = cow.Name,
+                Locations = cow.GpsEntries.Select(ge => new LocationDto
                 {
                     Id = ge.Id,
+                    CowId = cow.Id,
                     LocationDateTime = ge.DateTime.ToLocalTime(),
                     Latitude = ge.LatitudeDeg
                             + ge.LatitudeMinutes / 60
@@ -174,7 +177,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                             + ge.LongitudeMinutes / 60
                             + ge.LongitudeMinutesDecimals / 600000
                 }).ToList(),
-                Temperatures = cowLocation.TemperatureEntries.Select(x => new TemperatureDto
+                Temperatures = cow.TemperatureEntries.Select(x => new TemperatureDto
                 {
                     Id = x.Id,
                     Temperature = x.Temperature,
@@ -215,6 +218,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Locations = entryIds.Select(e => new LocationDto
                 {
                     Id = entryIdMultiplier * id + e,
+                    CowId = id,
                     LocationDateTime = date,
                     Latitude = GetRandomLatitude(),
                     Longitude = GetRandomLongitude()
@@ -235,6 +239,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Locations = entryIds.Select(e => new LocationDto
                 {
                     Id = entryIdMultiplier * numberOfCows + e,
+                    CowId = numberOfCows,
                     LocationDateTime = date,
                     Latitude = GetRandom(506026, 506030),
                     Longitude = GetRandom(35085, 35093)
@@ -306,7 +311,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var allTemperatures = cows.SelectMany(x => x.Temperatures).Select(x => x.Temperature)
                 .ToArray();
 
-            if (allTemperatures.Length < 3)
+            if (allTemperatures.Length < 4)
                 return;
 
             var medianIndex = (int)((float)allTemperatures.Length / 2);
@@ -360,21 +365,42 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
         private static void HasStrangeLocation(IReadOnlyCollection<CowDto> cows)
         {
-            var allLocations = cows.SelectMany(x => x.Locations)
-                .ToArray();
+            var locationsByHour = cows.SelectMany(x => x.Locations)
+                .GroupBy(x => x.LocationDateTime.ToString("yy-MM-dd HH:00:00"))
+                .ToList();
 
-            if (allLocations.Length < 3)
-                return;
+            var allStrangeCowIds = new List<long>();
+            foreach (var locationsGroup in locationsByHour)
+            {
+                var strangeCowIdsForSet = GetCowsWithStrangeLocation(locationsGroup.ToList());
+                allStrangeCowIds.AddRange(strangeCowIdsForSet);
+            }
 
-            var allLongitude = allLocations.Select(x => x.Longitude)
+            var strangeCowIds = allStrangeCowIds
+                .GroupBy(x => x)
+                .Where(x => x.Count() > locationsByHour.Count * 0.25)
+                .Select(x => x.Key);
+
+            foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
+            {
+                strangeCow.HasStrangeLocation = true;
+            }
+        }
+
+        private static IEnumerable<long> GetCowsWithStrangeLocation(IReadOnlyCollection<LocationDto> locations)
+        {
+            if (locations.Count < 4)
+                return new List<long>();
+
+            var allLongitude = locations.Select(x => x.Longitude)
                 .OrderBy(x => x)
                 .ToArray();
 
-            var allLatitude = allLocations.Select(x => x.Latitude)
+            var allLatitude = locations.Select(x => x.Latitude)
                 .OrderBy(x => x)
                 .ToArray();
 
-            var medianIndex = (int)((float)allLocations.Length / 2);
+            var medianIndex = (int)((float)locations.Count / 2);
 
             double medianLongitude;
             double medianLatitude;
@@ -425,14 +451,11 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var diffLongitude = iqrLongitude * 1.5;
             var diffLatitude = iqrLatitude * 1.5;
 
-            foreach (var cow in cows)
-            {
-                if (cow.Locations.Any(x =>
-                    (x.Longitude - medianLongitude > diffLongitude) || (x.Latitude - medianLatitude > diffLatitude)))
-                {
-                    cow.HasStrangeLocation = true;
-                }
-            }
+            return locations
+                .Where(x =>
+                    (x.Longitude - medianLongitude) > diffLongitude || (x.Latitude - medianLatitude) > diffLatitude)
+                .Select(x => x.CowId)
+                .Distinct();
         }
     }
 }
