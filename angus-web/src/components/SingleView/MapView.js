@@ -4,12 +4,13 @@ import ContentWrapper from '../Layout/ContentWrapper';
 import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
 import _ from "lodash";
 import HeatmapLayer from "react-google-maps/lib/components/visualization/HeatmapLayer";
+import {Polygon} from "react-google-maps";
 
 import {DateRangePicker} from 'react-dates';
 
 import Map from "../Map/Map";
 import AngusMarker from "../Map/AngusMarker";
-import {getCows} from "../../Services/AngusAPI";
+import {getCows, getGrazing} from "../../Services/AngusAPI";
 import moment from 'moment'
 import {Button, Col, Row} from "react-bootstrap";
 
@@ -30,6 +31,15 @@ class MapView extends React.Component {
 
   componentDidMount() {
     this.updateData();
+    this.updateGrazing();
+  }
+
+  updateGrazing() {
+    getGrazing()
+      .then((response) => response.json())
+      .then((data) => this.setState({
+        grazing: data
+      }));
   }
 
   updateData() {
@@ -73,7 +83,6 @@ class MapView extends React.Component {
       this.updateData();
     });
   }
-
 
   changeLanguage = lng => {
     this.props.i18n.changeLanguage(lng);
@@ -144,6 +153,17 @@ class MapView extends React.Component {
                              lng: _.first(item.locations).longitude
                            }}
                            name={item.cowName}/>)}
+          {_.map(this.state.grazing, (grazing, index) => {
+            const coordinates = _.map(grazing.coordinates, (latlng) => {
+              return {lat: latlng.lat, lng: latlng.lng}
+            });
+            return <Polygon key={index} path={coordinates} options={{
+              fillColor: `#ffff00`,
+              fillOpacity: 0.3,
+              strokeWeight: 5,
+              clickable: false
+            }}/>;
+          })}
         </Map>
       </ContentWrapper>
     );
