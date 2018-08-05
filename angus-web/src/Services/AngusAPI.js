@@ -6,7 +6,7 @@ if (window.location.href.indexOf('localhost') > 0) {
 }
 
 const getCows = (start, end) => {
-  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/10000" : ""}?start=${start}&end=${end}`)
+  return fetch(`${baseUrl}/api/cows/${debug ? "fake/20/50000" : ""}?start=${start}&end=${end}`)
 };
 
 const deleteLocations = () => {
