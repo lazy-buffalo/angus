@@ -15,6 +15,7 @@ import markerIcon from './marker.png';
 import markerWarningIcon from './marker_warning.png';
 import {getCows} from "./services/angusAPI";
 import CalendarPicker from 'react-native-calendar-picker';
+import Moment from 'moment';
 import _ from "lodash";
 
 YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
@@ -57,8 +58,8 @@ class MapScreen extends React.Component {
       this.state = {
           dataSource:ds.cloneWithRows([{first:"first", last:"last"}, {first:"first", last:"last"}]),
           cows:[],
-          selectedStartDate: null,
-          selectedEndDate: null
+          selectedStartDate: new Date(),
+          selectedEndDate: new Date()
       }
       this.openDrawer = this.openDrawer.bind(this);
       this.onDateChange = this.onDateChange.bind(this);
@@ -68,17 +69,25 @@ class MapScreen extends React.Component {
       if (type === 'END_DATE') {
         this.setState({
           selectedEndDate: date,
+        }, () => {
+          this.updateCows(); // get cows data
         });
       } else {
         this.setState({
           selectedStartDate: date,
-          selectedEndDate: null,
+          selectedEndDate: date,
+        }, () => {
+          this.updateCows(); // get cows data
         });
       }
     }
 
   componentDidMount() {
-    getCows()
+    this.updateCows();
+  }
+
+  updateCows() {
+    getCows(Moment(this.state.selectedStartDate).format('YYYY/MM/DD'), Moment(this.state.selectedEndDate).format('YYYY/MM/DD'))
         .then((response) => response.json())
         .then((data) => this.setState({
           cows: data
@@ -92,8 +101,9 @@ class MapScreen extends React.Component {
       this.drawer.openDrawer();
   }
 
-  getData() {
-    return _.flatMapDeep(this.state.cows, (item, index) => {
+  getData(strange) {
+        cows = _.filter(this.state.cows, (cow) => cow.hasStrangeLocation === strange);
+    return _.flatMapDeep(cows, (item, index) => {
       return _.map(item.locations, (location) => {
         return {
           latitude: location.latitude,
@@ -112,6 +122,9 @@ class MapScreen extends React.Component {
     const maxDate = new Date(); // today
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
     const endDate = selectedEndDate ? selectedEndDate.toString() : '';
+    const cows = this.getData(false);
+    const strangeCows = this.getData(true);
+
     var navigationView = (
       <View style={styles.container}>
        <CalendarPicker
@@ -150,21 +163,34 @@ class MapScreen extends React.Component {
                 longitudeDelta: 0.0421,
                 }}>
                 {
-                  this.state.cows.length > 0 &&
+                  cows.length > 0 &&
                   (<MapView.Heatmap
-                    points={this.getData()}
+                    points={cows}
                     radius={40}
                     heatmapMode={"POINTS_DENSITY"}/>)
                 }
                 {
-                  this.state.cows.map((cow, i) => (
-                  <Marker
-                    key={cow.cowId}
-                    title={cow.cowName + " - " + cow.temperatures[0].temperature + "°C"}
-                    image={cow.temperatures[0].temperature > MIN_ADULT_TEMPERATURE && cow.temperatures[0].temperature < MAX_ADULT_TEMPERATURE ?
-                       markerIcon : markerWarningIcon}
-                    coordinate={cow.locations[0]}/>
-                  ))
+                  strangeCows.length > 0 &&
+                  (<MapView.Heatmap
+                    points={strangeCows}
+                    gradient={{
+                             colors: ["#00000000", "#00FFFF", "#00FFFF", "#00BFFF", "#007FFF", "#003FFF", "#0000FF", "#0000DF", "#0000BF", "#00009F", "#00007F", "#3F005B", "#7F003F", "#BF001F", "#FF0000"],
+                             values: [0, 0.0714, 0.1428, 0.2142, 0.2857, 0.3571, 0.4285, 0.5, 0.5714, 0.6428, 0.7142, 0.7857, 0.8571, 0.9285, 1]}}
+                    radius={40}
+                    heatmapMode={"POINTS_DENSITY"}/>)
+                }
+                {
+                  this.state.cows.length > 0 &&
+                  _.map(_.filter(this.state.cows, (cow) => { return cow.locations.length > 0}), cow =>
+                    {
+                      return  <Marker
+                        key={cow.cowId}
+                        title={cow.cowName + (cow.temperatures.length > 0 ? " - " + cow.temperatures[0].temperature + "°C" : "")}
+                        image={cow.temperatures.length > 0 && cow.temperatures[0].temperature > MIN_ADULT_TEMPERATURE && cow.temperatures[0].temperature < MAX_ADULT_TEMPERATURE ?
+                           markerIcon : markerWarningIcon}
+                        coordinate={cow.locations[0]}/>
+                    }
+                  )
                 }
         </MapView>
         <Button
