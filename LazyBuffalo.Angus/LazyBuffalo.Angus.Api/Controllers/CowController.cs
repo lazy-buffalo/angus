@@ -223,7 +223,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     DateTime = date,
                     Latitude = (ge.LatitudeDeg
                                + ge.LatitudeMinutes / 60
-                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier),
+                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
                     Longitude = (ge.LongitudeDeg
                                 + ge.LongitudeMinutes / 60
                                 + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
