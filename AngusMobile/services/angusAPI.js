@@ -1,6 +1,6 @@
 const baseUrl = 'https://lazybuffalo-api.azurewebsites.net';
 
-const debug = true;
+const debug = false;
 
 const postZone = (zone) => {
   return fetch(baseUrl + "/api/zone", {
