@@ -34,8 +34,8 @@ class Map extends Component {
                          mapElement={<div style={{height: `100%`}}/>}
                          onMapMounted={this.handleMapMounted}>
       {this.props.children}
-      {this.props.layer &&
-      (this.props.layer)}
+      {this.props.layer && this.props.layer}
+      {this.props.badLayer && this.props.badLayer}
     </MapRendering>;
   }
 }

@@ -131,7 +131,8 @@ class MapView extends React.Component {
           </div>
           {/* END Language list */}
         </div>
-        <Map layer={this.renderHeatmap()}
+        <Map layer={this.renderHeatmap(this.getStrangeCows(false))}
+             badLayer={this.renderHeatmap(this.getStrangeCows(true), 'blue')}
              style={{height: 'calc(100vh - 210px)', margin: '-20px'}}
              mapRef={this.onMapRef.bind(this)}>
           {_.map(_.filter(this.state.cows,
@@ -148,6 +149,10 @@ class MapView extends React.Component {
     );
   }
 
+  getStrangeCows(strange) {
+    return _.filter(this.state.cows, (cow) => cow.hasStrangeLocation === strange);
+  }
+
   getData() {
     return _.flatMapDeep(this.state.cows, (item, index) => {
 
@@ -160,8 +165,32 @@ class MapView extends React.Component {
     });
   }
 
-  renderHeatmap() {
-    return <HeatmapLayer options={{radius: 40}} data={_.flatMapDeep(this.state.cows, (cow, index) => {
+  renderHeatmap(cows, gradient) {
+
+    const options = {
+      radius: 40
+    };
+
+    if (gradient === 'blue') {
+      options.gradient = [
+        'rgba(0, 255, 255, 0)',
+        'rgba(0, 255, 255, 1)',
+        'rgba(0, 191, 255, 1)',
+        'rgba(0, 127, 255, 1)',
+        'rgba(0, 63, 255, 1)',
+        'rgba(0, 0, 255, 1)',
+        'rgba(0, 0, 223, 1)',
+        'rgba(0, 0, 191, 1)',
+        'rgba(0, 0, 159, 1)',
+        'rgba(0, 0, 127, 1)',
+        'rgba(63, 0, 91, 1)',
+        'rgba(127, 0, 63, 1)',
+        'rgba(191, 0, 31, 1)',
+        'rgba(255, 0, 0, 1)'
+      ];
+    }
+
+    return <HeatmapLayer options={options} data={_.flatMapDeep(cows, (cow, index) => {
 
         return _.map(cow.locations, (location) => {
           return {
@@ -175,4 +204,9 @@ class MapView extends React.Component {
   }
 }
 
-export default translate('translations')(MapView);
+export default translate(
+  'translations'
+)(
+  MapView
+)
+;
