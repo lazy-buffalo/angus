@@ -328,7 +328,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
         {
             var dataByHour = cows.SelectMany(x => x.Temperatures)
-                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 4, 00))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
