@@ -193,8 +193,8 @@ namespace LazyBuffalo.Angus.Api.Controllers
         }
 
 
-        [HttpGet("fake/{numberOfCows}/{numberOfEntries}/{cowId?}")]
-        public async Task<IActionResult> GetFake(int numberOfCows, int numberOfEntries, long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
+        [HttpGet("fake/{numberOfCows}/{multiplier}/{cowId?}")]
+        public async Task<IActionResult> GetFake(int numberOfCows, long multiplier, long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
             var date = (start ?? DateTime.UtcNow).ToLocalTime();
 
@@ -212,7 +212,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var gpsEntryIdMultiplier = (int)Math.Pow(10, marguerite.GpsEntries.Count);
             var tempEntryIdMultiplier = (int)Math.Pow(10, marguerite.TemperatureEntries.Count);
 
-            var gpsEntryMultiplier = 1 + _random.NextDouble() / 100000;
+            var gpsEntryMultiplier = 1 + _random.NextDouble() / multiplier;
             var tempEntryMultiplier = 1 + _random.NextDouble() / 10;
 
             var result = cowIds.Select(id => new CowDto
