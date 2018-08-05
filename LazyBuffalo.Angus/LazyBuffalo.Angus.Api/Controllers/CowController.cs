@@ -67,7 +67,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     {
                         Id = cow.GpsEntry.Id,
                         CowId = cow.Id,
-                        LocationDateTime = cow.GpsEntry.DateTime.ToLocalTime(),
+                        DateTime = cow.GpsEntry.DateTime.ToLocalTime(),
                         Latitude = cow.GpsEntry.LatitudeDeg
                                    + cow.GpsEntry.LatitudeMinutes / 60
                                    + cow.GpsEntry.LatitudeMinutesDecimals / 600000,
@@ -109,7 +109,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     {
                         Id = id,
                         CowId = id,
-                        LocationDateTime = DateTime.UtcNow.ToLocalTime(),
+                        DateTime = DateTime.UtcNow.ToLocalTime(),
                         Latitude = GetRandomLatitude(),
                         Longitude = GetRandomLongitude()
                     }
@@ -169,7 +169,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     Id = ge.Id,
                     CowId = cow.Id,
-                    LocationDateTime = ge.DateTime.ToLocalTime(),
+                    DateTime = ge.DateTime.ToLocalTime(),
                     Latitude = ge.LatitudeDeg
                             + ge.LatitudeMinutes / 60
                             + ge.LatitudeMinutesDecimals / 600000,
@@ -180,6 +180,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Temperatures = cow.TemperatureEntries.Select(x => new TemperatureDto
                 {
                     Id = x.Id,
+                    CowId = cow.Id,
                     Temperature = x.Temperature,
                     DateTime = x.DateTime
                 }).ToList()
@@ -219,7 +220,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     Id = entryIdMultiplier * id + e,
                     CowId = id,
-                    LocationDateTime = date,
+                    DateTime = date,
                     Latitude = GetRandomLatitude(),
                     Longitude = GetRandomLongitude()
                 }).ToList(),
@@ -240,13 +241,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     Id = entryIdMultiplier * numberOfCows + e,
                     CowId = numberOfCows,
-                    LocationDateTime = date,
+                    DateTime = date,
                     Latitude = GetRandom(506026, 506030),
                     Longitude = GetRandom(35085, 35093)
                 }).ToList(),
                 Temperatures = entryIds.Select(e => new TemperatureDto
                 {
                     Id = entryIdMultiplier * numberOfCows + e,
+                    CowId = numberOfCows,
                     DateTime = date,
                     Temperature = GetRandomSickTemperature()
                 }).ToList()
@@ -306,13 +308,39 @@ namespace LazyBuffalo.Angus.Api.Controllers
             return (double)result / divider;
         }
 
+
         private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
         {
-            var allTemperatures = cows.SelectMany(x => x.Temperatures).Select(x => x.Temperature)
+            var dataByHour = cows.SelectMany(x => x.Temperatures)
+                .GroupBy(x => x.DateTime.ToString("yy-MM-dd HH:00:00"))
+                .ToList();
+
+            var allStrangeCowIds = new List<long>();
+            foreach (var group in dataByHour)
+            {
+                var strangeCowIdsForSet = GetCowsWithStrangeTemperature(group.ToList());
+                allStrangeCowIds.AddRange(strangeCowIdsForSet);
+            }
+
+            var strangeCowIds = allStrangeCowIds
+                .GroupBy(x => x)
+                .Where(x => x.Count() > dataByHour.Count * 0.25)
+                .Select(x => x.Key);
+
+            foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
+            {
+                strangeCow.HasStrangeTemperature = true;
+            }
+        }
+
+        private static IEnumerable<long> GetCowsWithStrangeTemperature(IReadOnlyCollection<TemperatureDto> temperatures)
+        {
+            var allTemperatures = temperatures
+                .Select(x => x.Temperature)
                 .ToArray();
 
             if (allTemperatures.Length < 4)
-                return;
+                return new List<long>();
 
             var medianIndex = (int)((float)allTemperatures.Length / 2);
 
@@ -354,19 +382,17 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             var diff = iqr * 1.5;
 
-            foreach (var cow in cows)
-            {
-                if (cow.Temperatures.Any(x => x.Temperature - median > diff))
-                {
-                    cow.HasStrangeTemperature = true;
-                }
-            }
+
+            return temperatures
+                .Where(x => x.Temperature - median > diff)
+                .Select(x => x.CowId)
+                .Distinct();
         }
 
         private static void HasStrangeLocation(IReadOnlyCollection<CowDto> cows)
         {
             var locationsByHour = cows.SelectMany(x => x.Locations)
-                .GroupBy(x => x.LocationDateTime.ToString("yy-MM-dd HH:00:00"))
+                .GroupBy(x => x.DateTime.ToString("yy-MM-dd HH:00:00"))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
