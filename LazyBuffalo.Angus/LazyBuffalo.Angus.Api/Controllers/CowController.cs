@@ -340,7 +340,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             var strangeCowIds = allStrangeCowIds
                 .GroupBy(x => x)
-                .Where(x => x.Count() > dataByHour.Count * 0.25)
+                .Where(x => x.Count() > dataByHour.Count * 0.60)
                 .Select(x => x.Key);
 
             foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
