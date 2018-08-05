@@ -312,7 +312,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
         {
             var dataByHour = cows.SelectMany(x => x.Temperatures)
-                .GroupBy(x => x.DateTime.ToString("yy-MM-dd HH:00:00"))
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
@@ -392,7 +392,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         private static void HasStrangeLocation(IReadOnlyCollection<CowDto> cows)
         {
             var locationsByHour = cows.SelectMany(x => x.Locations)
-                .GroupBy(x => x.DateTime.ToString("yy-MM-dd HH:00:00"))
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
