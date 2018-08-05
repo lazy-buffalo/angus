@@ -34,10 +34,10 @@ const LoadTheme = props => {
     const setTheme = name => () => {
         if (themes[name])
             injectStylesheet(themes[name]);
-    }
+    };
 
     function createLink() {
-        const tag = $(`#${LINK_ID}`)
+        const tag = $(`#${LINK_ID}`);
         if (tag.length)
             return tag;
         else // if not exists => create
@@ -56,8 +56,7 @@ const LoadTheme = props => {
             onClick: setTheme(props.theme)
         })
     )
-
-}
+};
 
 LoadTheme.propTypes = {
     /** the name of theme to load */

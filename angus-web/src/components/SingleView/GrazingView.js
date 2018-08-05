@@ -5,6 +5,8 @@ import {Trans, translate} from "react-i18next";
 import {DrawingManager} from "react-google-maps/lib/components/drawing/DrawingManager";
 import Map from "../Map/Map";
 
+import { postGrazing } from '../../Services/AngusAPI'
+
 const google = window.google;
 
 class GrazingView extends React.Component {
@@ -16,11 +18,55 @@ class GrazingView extends React.Component {
   }
 
   componentDidMount() {
-    // google.maps.event.addListener(this.drawingManager, 'circlecomplete', this.handlePolygon);
+    //
   }
 
-  handleNewPolygon(polygon) {
+  handleNewPolygon(evt) {
+    const type = evt.type; // "CIRCLE", "POLYGON", etc
+    if(type !== 'polygon')
+      return;
 
+    const overlay = evt.overlay; // regular Google maps API object
+
+    // Use react-google-maps instead of the created overlay object
+    google.maps.event.clearInstanceListeners(overlay);
+    overlay.setMap(null);
+
+    // Ok, now we can handle the event in a "controlled" way
+
+    const path = overlay.getPath();
+
+    const coords = [];
+    for (var i =0; i < path.getLength(); i++) {
+      var xy = path.getAt(i);
+      coords.push({lat : xy.lat(), lng : xy.lng()});
+    }
+
+    postGrazing({
+      coordinates : coords
+    });
+
+    JSON.stringify(coords);
+
+    // ex:
+    // let radius = overlay.getRadius();
+    // let center = overlay.getCenter();
+    // this.setState({ circles: [ ...this.state.circles, { radius, center }]});
+  }
+
+  onDrawingManager = (mg) => {
+    this.drawingManager = mg;
+    google.maps.event.addListener(mg, 'polygoncomplete', (e) => {
+      console.log(e);
+    });
+  };
+
+  onMapRef = (map) => {
+    this.mapRef = map;
+  };
+
+  componentWillUnmount(){
+    google.maps.event.removeListener(this.drawingManager, 'polygoncomplete', this.handlePolygon);
   }
 
   render() {
@@ -31,13 +77,15 @@ class GrazingView extends React.Component {
             <small><Trans i18nKey='grazing.TITLE'></Trans></small>
           </div>
         </div>
-        <Map style={{height: 'calc(100vh - 195px)', margin: '-20px'}}>
+        <Map style={{height: 'calc(100vh - 195px)', margin: '-20px'}}
+             mapRef={this.onMapRef.bind(this)}>
           <DrawingManager
-            ref={(e) => this.drawingManager = e}
+            onOverlayComplete={this.handleNewPolygon.bind(this)}
+            ref={this.onDrawingManager.bind(this)}
             defaultDrawingMode={google.maps.drawing.OverlayType.POLYGON}
             defaultOptions={{
               drawingControl: true,
-              drawingMode: google.maps.drawing.OverlayType.MARKER,
+              drawingMode: google.maps.drawing.OverlayType.POLYGON,
               drawingControlOptions: {
                 position: google.maps.ControlPosition.TOP_CENTER,
                 drawingModes: [
