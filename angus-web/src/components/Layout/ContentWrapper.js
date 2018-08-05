@@ -12,14 +12,14 @@ const ContentWrapper = props =>(
             (props.children)
         }
     </div>
-)
+);
 
 ContentWrapper.propTypes = {
     /** add element with 'unwrap' class to expand content area */
     unwrap: PropTypes.bool
-}
+};
 ContentWrapper.defaultProps = {
     unwrap: false
-}
+};
 
 export default ContentWrapper;
