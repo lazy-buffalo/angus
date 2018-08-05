@@ -212,9 +212,6 @@ namespace LazyBuffalo.Angus.Api.Controllers
             var gpsEntryIdMultiplier = (int)Math.Pow(10, marguerite.GpsEntries.Count);
             var tempEntryIdMultiplier = (int)Math.Pow(10, marguerite.TemperatureEntries.Count);
 
-            var gpsEntryMultiplier = 1 + _random.NextDouble() / multiplier;
-            var tempEntryMultiplier = 1 + _random.NextDouble() / 10;
-
             var result = cowIds.Select(id => new CowDto
             {
                 CowId = id,
@@ -226,16 +223,16 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     DateTime = date,
                     Latitude = (ge.LatitudeDeg
                                + ge.LatitudeMinutes / 60
-                               + ge.LatitudeMinutesDecimals / 600000) * gpsEntryMultiplier,
+                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier),
                     Longitude = (ge.LongitudeDeg
                                 + ge.LongitudeMinutes / 60
-                                + ge.LongitudeMinutesDecimals / 600000) * gpsEntryMultiplier
+                                + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
                 }).ToList(),
                 Temperatures = marguerite.TemperatureEntries.Select(e => new TemperatureDto
                 {
                     Id = tempEntryIdMultiplier * id + e.Id,
                     DateTime = date,
-                    Temperature = (float)(e.Temperature * tempEntryMultiplier)
+                    Temperature = (float)(e.Temperature * (1 + _random.NextDouble() / 10))
                 }).ToList()
             }).ToList();
 
