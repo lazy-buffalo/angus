@@ -67,7 +67,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     {
                         Id = cow.GpsEntry.Id,
                         CowId = cow.Id,
-                        LocationDateTime = cow.GpsEntry.DateTime.ToLocalTime(),
+                        DateTime = cow.GpsEntry.DateTime.ToLocalTime(),
                         Latitude = cow.GpsEntry.LatitudeDeg
                                    + cow.GpsEntry.LatitudeMinutes / 60
                                    + cow.GpsEntry.LatitudeMinutesDecimals / 600000,
@@ -109,7 +109,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     {
                         Id = id,
                         CowId = id,
-                        LocationDateTime = DateTime.UtcNow.ToLocalTime(),
+                        DateTime = DateTime.UtcNow.ToLocalTime(),
                         Latitude = GetRandomLatitude(),
                         Longitude = GetRandomLongitude()
                     }
@@ -169,7 +169,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 {
                     Id = ge.Id,
                     CowId = cow.Id,
-                    LocationDateTime = ge.DateTime.ToLocalTime(),
+                    DateTime = ge.DateTime.ToLocalTime(),
                     Latitude = ge.LatitudeDeg
                             + ge.LatitudeMinutes / 60
                             + ge.LatitudeMinutesDecimals / 600000,
@@ -180,6 +180,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 Temperatures = cow.TemperatureEntries.Select(x => new TemperatureDto
                 {
                     Id = x.Id,
+                    CowId = cow.Id,
                     Temperature = x.Temperature,
                     DateTime = x.DateTime
                 }).ToList()
@@ -192,8 +193,8 @@ namespace LazyBuffalo.Angus.Api.Controllers
         }
 
 
-        [HttpGet("fake/{numberOfCows}/{numberOfEntries}/{cowId?}")]
-        public IActionResult GetFake(int numberOfCows, int numberOfEntries, long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
+        [HttpGet("fake/{numberOfCows}/{multiplier}/{cowId?}")]
+        public async Task<IActionResult> GetFake(int numberOfCows, long multiplier, long? cowId, [FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
             var date = (start ?? DateTime.UtcNow).ToLocalTime();
 
@@ -203,50 +204,68 @@ namespace LazyBuffalo.Angus.Api.Controllers
                 cowIds.Add(i + 1);
             }
 
-            var entryIds = new List<int>();
-            for (var i = 0; i < numberOfEntries; i++)
-            {
-                entryIds.Add(i + 1);
-            }
+            var marguerite = await _context.Cows
+                .Include(x => x.GpsEntries)
+                .Include(x => x.TemperatureEntries)
+                .FirstOrDefaultAsync(x => x.Id == 2);
 
-            var entryIdMultiplier = (int)Math.Pow(10, numberOfEntries.ToString().Length);
+            var gpsEntryIdMultiplier = (int)Math.Pow(10, marguerite.GpsEntries.Count);
+            var tempEntryIdMultiplier = (int)Math.Pow(10, marguerite.TemperatureEntries.Count);
 
             var result = cowIds.Select(id => new CowDto
             {
                 CowId = id,
                 CowName = "Roberte",
-                Locations = entryIds.Select(e => new LocationDto
+                Locations = marguerite.GpsEntries.Select(ge => new LocationDto
                 {
-                    Id = entryIdMultiplier * id + e,
+                    Id = gpsEntryIdMultiplier * id + ge.Id,
                     CowId = id,
-                    LocationDateTime = date,
-                    Latitude = GetRandomLatitude(),
-                    Longitude = GetRandomLongitude()
-                }).ToList(),
-                Temperatures = entryIds.Select(e => new TemperatureDto
-                {
-                    Id = entryIdMultiplier * id + e,
                     DateTime = date,
-                    Temperature = GetRandomTemperature()
+                    Latitude = (ge.LatitudeDeg
+                               + ge.LatitudeMinutes / 60
+                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
+                    Longitude = (ge.LongitudeDeg
+                                + ge.LongitudeMinutes / 60
+                                + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
+                }).ToList(),
+                Temperatures = marguerite.TemperatureEntries.Select(e => new TemperatureDto
+                {
+                    Id = tempEntryIdMultiplier * id + e.Id,
+                    DateTime = date,
+                    Temperature = (float)(e.Temperature * (1 + _random.NextDouble() / 10))
                 }).ToList()
             }).ToList();
+
+
+            var gpsEntryIds = new List<int>();
+            for (var i = 0; i < marguerite.GpsEntries.Count; i++)
+            {
+                gpsEntryIds.Add(i + 1);
+            }
+
+            var tempEntryIds = new List<int>();
+            for (var i = 0; i < marguerite.TemperatureEntries.Count; i++)
+            {
+                tempEntryIds.Add(i + 1);
+            }
 
             result.Add(new CowDto
             {
 
                 CowId = numberOfCows,
                 CowName = "Zelda",
-                Locations = entryIds.Select(e => new LocationDto
+                Locations = gpsEntryIds.Select(e => new LocationDto
                 {
-                    Id = entryIdMultiplier * numberOfCows + e,
+                    Id = gpsEntryIdMultiplier * numberOfCows + e,
                     CowId = numberOfCows,
-                    LocationDateTime = date,
+                    DateTime = date,
                     Latitude = GetRandom(506026, 506030),
                     Longitude = GetRandom(35085, 35093)
                 }).ToList(),
-                Temperatures = entryIds.Select(e => new TemperatureDto
+                Temperatures = tempEntryIds.Select(e => new TemperatureDto
                 {
-                    Id = entryIdMultiplier * numberOfCows + e,
+                    Id = tempEntryIdMultiplier * numberOfCows + e,
+                    CowId = numberOfCows,
                     DateTime = date,
                     Temperature = GetRandomSickTemperature()
                 }).ToList()
@@ -308,11 +327,36 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
         private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
         {
-            var allTemperatures = cows.SelectMany(x => x.Temperatures).Select(x => x.Temperature)
+            var dataByHour = cows.SelectMany(x => x.Temperatures)
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
+                .ToList();
+
+            var allStrangeCowIds = new List<long>();
+            foreach (var group in dataByHour)
+            {
+                var strangeCowIdsForSet = GetCowsWithStrangeTemperature(group.ToList());
+                allStrangeCowIds.AddRange(strangeCowIdsForSet);
+            }
+
+            var strangeCowIds = allStrangeCowIds
+                .GroupBy(x => x)
+                .Where(x => x.Count() > dataByHour.Count * 0.25)
+                .Select(x => x.Key);
+
+            foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
+            {
+                strangeCow.HasStrangeTemperature = true;
+            }
+        }
+
+        private static IEnumerable<long> GetCowsWithStrangeTemperature(IReadOnlyCollection<TemperatureDto> temperatures)
+        {
+            var allTemperatures = temperatures
+                .Select(x => x.Temperature)
                 .ToArray();
 
             if (allTemperatures.Length < 4)
-                return;
+                return new List<long>();
 
             var medianIndex = (int)((float)allTemperatures.Length / 2);
 
@@ -354,19 +398,17 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             var diff = iqr * 1.5;
 
-            foreach (var cow in cows)
-            {
-                if (cow.Temperatures.Any(x => x.Temperature - median > diff))
-                {
-                    cow.HasStrangeTemperature = true;
-                }
-            }
+
+            return temperatures
+                .Where(x => x.Temperature - median > diff)
+                .Select(x => x.CowId)
+                .Distinct();
         }
 
         private static void HasStrangeLocation(IReadOnlyCollection<CowDto> cows)
         {
             var locationsByHour = cows.SelectMany(x => x.Locations)
-                .GroupBy(x => x.LocationDateTime.ToString("yy-MM-dd HH:00:00"))
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
