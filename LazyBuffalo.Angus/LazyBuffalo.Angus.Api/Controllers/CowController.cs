@@ -221,12 +221,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     Id = gpsEntryIdMultiplier * id + ge.Id,
                     CowId = id,
                     DateTime = date,
-                    Latitude = (ge.LatitudeDeg
-                               + ge.LatitudeMinutes / 60
-                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
-                    Longitude = (ge.LongitudeDeg
-                                + ge.LongitudeMinutes / 60
-                                + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
+                    Latitude = GetRandom(506033, 506042),
+                    Longitude = GetRandom(35060, 35080)
+                    //Latitude = (ge.LatitudeDeg
+                    //           + ge.LatitudeMinutes / 60
+                    //           + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
+                    //Longitude = (ge.LongitudeDeg
+                    //            + ge.LongitudeMinutes / 60
+                    //            + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
                 }).ToList(),
                 Temperatures = marguerite.TemperatureEntries.Select(e => new TemperatureDto
                 {
@@ -328,7 +330,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         private static void HasStrangeTemperature(IReadOnlyCollection<CowDto> cows)
         {
             var dataByHour = cows.SelectMany(x => x.Temperatures)
-                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 15, 00))
+                .GroupBy(x => new DateTime(x.DateTime.Year, x.DateTime.Month, x.DateTime.Day, x.DateTime.Hour, x.DateTime.Minute / 4, 00))
                 .ToList();
 
             var allStrangeCowIds = new List<long>();
@@ -340,7 +342,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             var strangeCowIds = allStrangeCowIds
                 .GroupBy(x => x)
-                .Where(x => x.Count() > dataByHour.Count * 0.25)
+                .Where(x => x.Count() > dataByHour.Count * 0.60)
                 .Select(x => x.Key);
 
             foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))
@@ -353,6 +355,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
         {
             var allTemperatures = temperatures
                 .Select(x => x.Temperature)
+                .OrderBy(x => x)
                 .ToArray();
 
             if (allTemperatures.Length < 4)
@@ -420,7 +423,7 @@ namespace LazyBuffalo.Angus.Api.Controllers
 
             var strangeCowIds = allStrangeCowIds
                 .GroupBy(x => x)
-                .Where(x => x.Count() > locationsByHour.Count * 0.25)
+                .Where(x => x.Count() > locationsByHour.Count * 0.60)
                 .Select(x => x.Key);
 
             foreach (var strangeCow in cows.Where(x => strangeCowIds.Contains(x.CowId)))

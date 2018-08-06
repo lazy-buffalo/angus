@@ -13,7 +13,7 @@ import MapView, {Marker, PROVIDER_GOOGLE } from  'react-native-maps';
 import {createStackNavigator} from 'react-navigation';
 import markerIcon from './marker.png';
 import markerWarningIcon from './marker_warning.png';
-import {getCows} from "./services/angusAPI";
+import {getCows, getGrazing} from "./services/angusAPI";
 import CalendarPicker from 'react-native-calendar-picker';
 import Moment from 'moment';
 import _ from "lodash";
@@ -58,6 +58,7 @@ class MapScreen extends React.Component {
       this.state = {
           dataSource:ds.cloneWithRows([{first:"first", last:"last"}, {first:"first", last:"last"}]),
           cows:[],
+          grazings:[],
           selectedStartDate: new Date(),
           selectedEndDate: new Date()
       }
@@ -84,6 +85,7 @@ class MapScreen extends React.Component {
 
   componentDidMount() {
     this.updateCows();
+    this.updateGrazing();
   }
 
   updateCows() {
@@ -97,12 +99,24 @@ class MapScreen extends React.Component {
         });
   }
 
+  updateGrazing() {
+    getGrazing()
+        .then((response) => response.json())
+        .then((data) => this.setState({
+          grazings: data
+        }))
+        .catch((error) => {
+          console.log(error);
+        });
+  }
+
+
   openDrawer() {
       this.drawer.openDrawer();
   }
 
   getData(strange) {
-        cows = _.filter(this.state.cows, (cow) => cow.hasStrangeLocation === strange);
+    const cows = _.filter(this.state.cows, (cow) => cow.hasStrangeLocation === strange);
     return _.flatMapDeep(cows, (item, index) => {
       return _.map(item.locations, (location) => {
         return {
@@ -112,6 +126,19 @@ class MapScreen extends React.Component {
         }
       })
     });
+  }
+
+  getGrazings() {
+    return  _.map(this.state.grazings, (grazing) => {
+        return {
+          id: grazing.id,
+          coordinates:_.map(grazing.coordinates, (coord) => {
+            return {
+              latitude: coord.lat,
+              longitude: coord.lng
+            }
+        })}
+      })
   }
 
   // <ListView
@@ -124,6 +151,7 @@ class MapScreen extends React.Component {
     const endDate = selectedEndDate ? selectedEndDate.toString() : '';
     const cows = this.getData(false);
     const strangeCows = this.getData(true);
+    const grazings = this.getGrazings();
 
     var navigationView = (
       <View style={styles.container}>
@@ -162,6 +190,16 @@ class MapScreen extends React.Component {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
                 }}>
+                {
+                  grazings.length > 0 &&
+                  (_.map(grazings, (grazing) => {
+                    return <MapView.Polygon
+                      key={grazing.id}
+                      strokeWidth={2}
+                      strokeColor={"#FFFFFF"}
+                      coordinates={grazing.coordinates} />
+                  }))
+                }
                 {
                   cows.length > 0 &&
                   (<MapView.Heatmap
