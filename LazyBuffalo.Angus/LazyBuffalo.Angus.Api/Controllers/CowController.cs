@@ -221,12 +221,14 @@ namespace LazyBuffalo.Angus.Api.Controllers
                     Id = gpsEntryIdMultiplier * id + ge.Id,
                     CowId = id,
                     DateTime = date,
-                    Latitude = (ge.LatitudeDeg
-                               + ge.LatitudeMinutes / 60
-                               + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
-                    Longitude = (ge.LongitudeDeg
-                                + ge.LongitudeMinutes / 60
-                                + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
+                    Latitude = GetRandom(506033, 506042),
+                    Longitude = GetRandom(35060, 35080)
+                    //Latitude = (ge.LatitudeDeg
+                    //           + ge.LatitudeMinutes / 60
+                    //           + ge.LatitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / (multiplier * 10)),
+                    //Longitude = (ge.LongitudeDeg
+                    //            + ge.LongitudeMinutes / 60
+                    //            + ge.LongitudeMinutesDecimals / 600000) * (1 + _random.NextDouble() / multiplier)
                 }).ToList(),
                 Temperatures = marguerite.TemperatureEntries.Select(e => new TemperatureDto
                 {
