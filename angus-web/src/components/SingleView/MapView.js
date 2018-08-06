@@ -152,6 +152,7 @@ class MapView extends React.Component {
                              lat: _.first(item.locations).latitude,
                              lng: _.first(item.locations).longitude
                            }}
+                           isStrange={item.hasStrangeLocation}
                            name={item.cowName}/>)}
           {_.map(this.state.grazing, (grazing, index) => {
             const coordinates = _.map(grazing.coordinates, (latlng) => {

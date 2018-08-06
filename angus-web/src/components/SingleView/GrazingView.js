@@ -5,7 +5,7 @@ import {Trans, translate} from "react-i18next";
 import {DrawingManager} from "react-google-maps/lib/components/drawing/DrawingManager";
 import Map from "../Map/Map";
 
-import { postGrazing } from '../../Services/AngusAPI'
+import {postGrazing} from '../../Services/AngusAPI'
 
 const google = window.google;
 
@@ -17,18 +17,18 @@ class GrazingView extends React.Component {
     this.handlePolygon = this.handleNewPolygon.bind(this);
   }
 
-  componentDidMount() {
-    //
-  }
-
   handleNewPolygon(evt) {
     const type = evt.type; // "CIRCLE", "POLYGON", etc
-    if(type !== 'polygon')
+    if (type !== 'polygon')
       return;
 
     const overlay = evt.overlay; // regular Google maps API object
 
     // Use react-google-maps instead of the created overlay object
+    if (!overlay) {
+      return;
+    }
+
     google.maps.event.clearInstanceListeners(overlay);
     overlay.setMap(null);
 
@@ -37,21 +37,15 @@ class GrazingView extends React.Component {
     const path = overlay.getPath();
 
     const coords = [];
-    for (var i =0; i < path.getLength(); i++) {
+    for (var i = 0; i < path.getLength(); i++) {
       var xy = path.getAt(i);
-      coords.push({lat : xy.lat(), lng : xy.lng()});
+      coords.push({lat: xy.lat(), lng: xy.lng()});
     }
 
     postGrazing({
-      coordinates : coords
+      coordinates: coords
     });
 
-    JSON.stringify(coords);
-
-    // ex:
-    // let radius = overlay.getRadius();
-    // let center = overlay.getCenter();
-    // this.setState({ circles: [ ...this.state.circles, { radius, center }]});
   }
 
   onDrawingManager = (mg) => {
@@ -65,8 +59,9 @@ class GrazingView extends React.Component {
     this.mapRef = map;
   };
 
-  componentWillUnmount(){
-    google.maps.event.removeListener(this.drawingManager, 'polygoncomplete', this.handlePolygon);
+  componentWillUnmount() {
+    if (this.drawingManager && this.handlePolygon)
+      google.maps.event.removeListener(this.drawingManager, 'polygoncomplete', this.handlePolygon);
   }
 
   render() {
